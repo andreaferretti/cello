@@ -128,7 +128,7 @@ template nextPerm(v: int32): auto =
   let t = (v or (v - 1)) + 1
   t or ((((t and -t) div (v and -v)) shr 1) - 1)
 
-iterator blocks*(popcount, size: int32): auto =
+iterator blocks*(popcount, size: int32): auto {.inline.} =
   let
     initial = (1'i32 shl popcount) - 1
     mask = (1'i32 shl size) - 1

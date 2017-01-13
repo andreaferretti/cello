@@ -123,3 +123,16 @@ proc bin*[T: AnyInt](t: T): string =
 
 proc `$`*[T: AnyInt](b: BitArray[T]): string =
   join(b.data.map(bin).reversed, " ")
+
+template nextPerm(v: int32): auto =
+  let t = (v or (v - 1)) + 1
+  t or ((((t and -t) div (v and -v)) shr 1) - 1)
+
+iterator blocks*(popcount, size: int32): auto =
+  let
+    initial = (1'i32 shl popcount) - 1
+    mask = (1'i32 shl size) - 1
+  var v = initial
+  while v >= initial:
+    yield v
+    v = nextPerm(v) and mask

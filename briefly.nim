@@ -126,19 +126,6 @@ proc `$`*[T: AnyInt](b: BitArray[T]): string =
 
 
 when isMainModule:
-  # let x1 = { 13..27, 35..80 }
-  # var x: set[int8]
-  # for q in x1:
-  #   x.incl(q.int8)
-  # echo x.rank(16)   # 3
-  # echo x.rank(30)   # 15
-  # echo x.rank(40)   # 20
-  # echo x.select(3)  # 16
-  # echo x.select(15) # 28
-  # echo x.select(20) # 40
-  #
-  # echo "================="
-
   let y = bits(13'i32..27'i32, 35'i32..80'i32)
   doAssert(y.rank(16) == 3)
   doAssert(y.rank(30) == 15)

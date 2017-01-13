@@ -1,1 +1,1 @@
-import ./bits, ./setops
+import ./bits, ./setops, ./bitarrays

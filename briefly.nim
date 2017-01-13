@@ -122,24 +122,4 @@ proc bin*[T: AnyInt](t: T): string =
       result &= '0'
 
 proc `$`*[T: AnyInt](b: BitArray[T]): string =
-  join(b.data.map(bin).reversed, ",")
-
-
-when isMainModule:
-  let y = bits(13'i32..27'i32, 35'i32..80'i32)
-  doAssert(y.rank(16) == 3)
-  doAssert(y.rank(30) == 15)
-  doAssert(y.rank(40) == 20)
-  doAssert(y.select(3) == 16)
-  doAssert(y.select(15) == 28)
-  doAssert(y.select(20) == 40)
-
-  let w = bits(13'i64..27'i64, 35'i64..80'i64)
-  doAssert(w.rank(16) == 3)
-  doAssert(w.rank(30) == 15)
-  doAssert(w.rank(40) == 20)
-  doAssert(w.select(3) == 16)
-  doAssert(w.select(15) == 28)
-  doAssert(w.select(20) == 40)
-
-  echo y
+  join(b.data.map(bin).reversed, " ")

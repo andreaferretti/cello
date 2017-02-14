@@ -22,6 +22,9 @@ proc bits*[T: AnyInt](k: int): BitArray[T] =
   result = BitArray[T](data: newSeq[T](k div L))
   # shallow(result.data)
 
+proc len*[T: AnyInt](bits: BitArray[T]): int =
+  bits.data.len * sizeof(T) * 8
+
 proc `[]`*[T: AnyInt](b: T, i: T): bool {.inline.} =
   ((b shr i) mod 2) != 0
 
@@ -136,3 +139,35 @@ iterator blocks*(popcount, size: int32): auto {.inline.} =
   while v >= initial:
     yield v
     v = nextPerm(v) and mask
+
+# TODO replace the indices with bit arrays to save space
+type RRR*[T] = object
+  ba*: BitArray[T]
+  index1*, index2*: seq[T]
+
+proc rrr*[T: AnyInt](ba: BitArray[T]): RRR[T] =
+  const
+    step1 = sizeof(T) * 8 * 8
+    step2 = sizeof(T) * 8
+  let L = ba.len
+  var
+    index1 = newSeqOfCap[T](L div step1)
+    index2 = newSeqOfCap[T](L div step2)
+    i = 0
+    pos = T(0)
+    last = T(0)
+  while pos < L:
+    let k = T(rank(ba, pos))
+    index2.add(k - last)
+    if i mod 8 == 0:
+      last = k
+      index1.add(k)
+    i += 1
+    pos += step2
+  return RRR[T](ba: ba, index1: index1, index2: index2)
+
+proc rank*[T](r: RRR[T], i: int): T =
+  const
+    step1 = sizeof(T) * 8 * 8
+    step2 = sizeof(T) * 8
+  return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)

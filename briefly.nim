@@ -140,10 +140,12 @@ iterator blocks*(popcount, size: int32): auto {.inline.} =
     yield v
     v = nextPerm(v) and mask
 
+
 # TODO replace the indices with bit arrays to save space
 type RRR*[T] = object
   ba*: BitArray[T]
-  index1*, index2*: seq[T]
+  index1*: seq[T]
+  index2*: seq[int16]
 
 proc rrr*[T: AnyInt](ba: BitArray[T]): RRR[T] =
   const
@@ -152,13 +154,13 @@ proc rrr*[T: AnyInt](ba: BitArray[T]): RRR[T] =
   let L = ba.len
   var
     index1 = newSeqOfCap[T](L div step1)
-    index2 = newSeqOfCap[T](L div step2)
+    index2 = newSeqOfCap[int16](L div step2)
     i = 0
     pos = T(0)
     last = T(0)
   while pos < L:
     let k = T(rank(ba, pos))
-    index2.add(k - last)
+    index2.add(int16(k - last))
     if i mod 8 == 0:
       last = k
       index1.add(k)

@@ -173,3 +173,29 @@ proc rank*[T](r: RRR[T], i: int): T =
     step1 = sizeof(T) * 8 * 8
     step2 = sizeof(T) * 8
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
+
+proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
+  var
+    aMin = min
+    aMax = max
+  while aMin < aMax:
+    let
+      middle = (aMin + aMax) div 2
+      v = s[middle]
+    if v < value:
+      if aMin == middle:
+        aMax = middle
+      else:
+        aMin = middle
+    else:
+      aMax = middle
+  return (aMin, s[aMin])
+
+proc select*[T](r: RRR[T], i: int): T =
+  const
+    step1 = sizeof(T) * 8 * 8
+    step2 = sizeof(T) * 8
+  let
+    (i1, s1) = binarySearch(r.index1, T(i), r.index1.low, r.index1.high)
+    (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + 8, r.index2.high))
+  return T(step1 * i1 + step2 * i2) + select(r.ba.data[T(i1 + i2)], T(i - s1 - s2))

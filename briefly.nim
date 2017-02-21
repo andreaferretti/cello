@@ -19,7 +19,8 @@ type
 
 proc bits*[T: AnyInt](k: int): BitArray[T] =
   const L = sizeof(T) * 8
-  result = BitArray[T](data: newSeq[T](k div L))
+  let r = k div L + (if k mod L == 0: 0 else: 1)
+  result = BitArray[T](data: newSeq[T](r))
   # shallow(result.data)
 
 proc len*[T: AnyInt](bits: BitArray[T]): int =
@@ -199,3 +200,46 @@ proc select*[T](r: RRR[T], i: int): T =
     (i1, s1) = binarySearch(r.index1, T(i), r.index1.low, r.index1.high)
     (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + 8, r.index2.high))
   return T(step1 * i1 + step2 * i2) + select(r.ba.data[T(i1 + i2)], T(i - s1 - s2))
+
+type WaveletTree*[T] = object
+  alphabet*: seq[char]
+  data*: ref RRR[T]
+  left*, right*: ref WaveletTree[T]
+
+proc uniq*(content: string or seq[char]): seq[char] =
+  result = @[]
+  for x in content:
+    if not result.contains(x):
+      result.add(x)
+
+template `~`[T](x: T): auto =
+  var t: ref T
+  new(t)
+  t[] = x
+  t
+
+proc waveletTree*[T](content: string, alphabet: seq[char]): WaveletTree[T] =
+  if alphabet.len == 1:
+    return WaveletTree[T](alphabet: alphabet)
+  let
+    L = high(alphabet) div 2
+    alphaLeft = alphabet[0 .. L]
+    alphaRight = alphabet[L+1 .. high(alphabet)]
+  var
+    contentLeft = ""
+    contentRight = ""
+    b = bits[T](content.len)
+  for i, c in content:
+    if alphaLeft.contains(c):
+      contentLeft.add(c)
+    else:
+      incl(b, T(i))
+      contentRight.add(c)
+  let
+    left = waveletTree[T](contentLeft, alphaLeft)
+    right = waveletTree[T](contentRight, alphaRight)
+    data = rrr(b)
+  return WaveletTree[T](alphabet: alphabet, data: ~data, left: ~left, right: ~right)
+
+proc waveletTree*[T](content: string): WaveletTree[T] =
+  waveletTree[T](content, uniq(content))

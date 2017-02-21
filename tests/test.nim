@@ -1,1 +1,1 @@
-import ./bits, ./setops, ./bitarrays, ./blocks, ./rrr
+import ./bits, ./setops, ./bitarrays, ./blocks, ./rrr, ./wavelet_tree

@@ -203,6 +203,7 @@ proc select*[T](r: RRR[T], i: int): T =
 
 type WaveletTree*[T] = object
   alphabet*: seq[char]
+  len*: int
   data*: ref RRR[T]
   left*, right*: ref WaveletTree[T]
 
@@ -218,13 +219,14 @@ template `~`[T](x: T): auto =
   t[] = x
   t
 
+template split(alphabet: seq[char]): auto =
+  let L = high(alphabet) div 2
+  (alphabet[0 .. L], alphabet[L+1 .. high(alphabet)])
+
 proc waveletTree*[T](content: string, alphabet: seq[char]): WaveletTree[T] =
   if alphabet.len == 1:
-    return WaveletTree[T](alphabet: alphabet)
-  let
-    L = high(alphabet) div 2
-    alphaLeft = alphabet[0 .. L]
-    alphaRight = alphabet[L+1 .. high(alphabet)]
+    return WaveletTree[T](alphabet: alphabet, len: content.len)
+  let (alphaLeft, alphaRight) = split(alphabet)
   var
     contentLeft = ""
     contentRight = ""
@@ -239,7 +241,23 @@ proc waveletTree*[T](content: string, alphabet: seq[char]): WaveletTree[T] =
     left = waveletTree[T](contentLeft, alphaLeft)
     right = waveletTree[T](contentRight, alphaRight)
     data = rrr(b)
-  return WaveletTree[T](alphabet: alphabet, data: ~data, left: ~left, right: ~right)
+  return WaveletTree[T](alphabet: alphabet, len: content.len, data: ~data, left: ~left, right: ~right)
 
 proc waveletTree*[T](content: string): WaveletTree[T] =
   waveletTree[T](content, uniq(content))
+
+proc rank*[T](w: WaveletTree[T], c: char, t: int): auto =
+  if not w.alphabet.contains(c):
+    return -1
+  if w.alphabet.len == 1:
+    if t > w.len:
+      return -1
+    else:
+      return t
+  let (alphaLeft, alphaRight) = split(w.alphabet)
+  if alphaLeft.contains(c):
+    let r = t - w.data[].rank(t)
+    return w.left[].rank(c, r)
+  elif alphaRight.contains(c):
+    let r = w.data[].rank(t)
+    return w.right[].rank(c, r)

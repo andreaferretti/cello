@@ -3,7 +3,7 @@ import briefly
 
 proc main() =
   const
-    width = 1_000_000
+    width = 1_000_000_000
     ops = 10000
   echo "Initialization starting"
   randomize(12435)

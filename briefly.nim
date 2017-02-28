@@ -153,17 +153,17 @@ proc rrr*(ba: BitArray): RRR =
   var
     index1 = newSeqOfCap[int](L div step1)
     index2 = newSeqOfCap[int16](L div step2)
-    i = 0
-    pos = 0
-    last = 0
-  while pos < L:
-    let k = rank(ba, pos)
-    index2.add(int16(k - last))
-    if i mod 8 == 0:
-      last = k
-      index1.add(k)
-    i += 1
-    pos += step2
+    sum1 = 0
+    sum2 = 0
+  index1.add(0)
+  index2.add(0)
+  for i, cell in ba.data:
+    sum2 += countSetBits(cell)
+    index2.add(int16(sum2))
+    if i + 1 mod 8 == 0:
+      sum1 += sum2
+      index1.add(sum1)
+      sum2 = 0
   return RRR(ba: ba, index1: index1, index2: index2)
 
 proc rank*(r: RRR, i: int): int =

@@ -25,7 +25,5 @@ task tests, "run briefly tests":
   setCommand "test"
 
 task benchmark, "run briefly benchmarks":
-  --define: release
-  --path: "."
-  --run
-  setCommand "c", "benchmarks/rrr.nim"
+  withDir "benchmarks":
+    exec "nimble benchmark"

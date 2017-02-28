@@ -1,15 +1,16 @@
-import times, random
+import stopwatch, random
 import briefly
 
 proc main() =
   const
-    width = 10_000_000
+    width = 1_000_000
     ops = 10000
   echo "Initialization starting"
   randomize(12435)
   var
     b = bits(width)
     indices = newSeq[int]()
+    sw = stopwatch()
 
   for i in 0 .. <  width:
     if random(2) == 0:
@@ -20,17 +21,14 @@ proc main() =
 
   echo "Initialization done"
 
-  let
-    r = rrr(b)
-    startTime = epochTime()
+  let r = rrr(b)
 
-  for j, i in indices:
+  sw.start()
+  for i in indices:
     discard r.rank(i)
-    if j mod 100 == 0:
-      echo j
-  let endTime = epochTime()
+  sw.stop()
 
-  echo "We have required ", endTime - startTime, " seconds to compute ", ops, " ranks."
+  echo "We have required ", sw.secs(), " seconds to compute ", ops, " ranks."
 
 when isMainModule:
   main()

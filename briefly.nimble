@@ -5,7 +5,7 @@ author        = "Andrea Ferretti"
 description   = "Succinct data structures"
 license       = "Apache2"
 skipFiles     = @["bitopts.nim"] # To be removed when it lands in devel
-skipDirs      = @["tests"]
+skipDirs      = @["tests", "benchmarks"]
 
 # Dependencies
 
@@ -23,3 +23,9 @@ task test, "run briefly tests":
 
 task tests, "run briefly tests":
   setCommand "test"
+
+task benchmark, "run briefly benchmarks":
+  --define: release
+  --path: "."
+  --run
+  setCommand "c", "benchmarks/rrr.nim"

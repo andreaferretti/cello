@@ -3,12 +3,12 @@ import briefly
 
 proc main() =
   const
-    width = 1_000_000
+    width = 10_000_000
     ops = 10000
   echo "Initialization starting"
   randomize(12435)
   var
-    b = bits[int64](width)
+    b = bits(width)
     indices = newSeq[int]()
 
   for i in 0 .. <  width:
@@ -24,8 +24,10 @@ proc main() =
     r = rrr(b)
     startTime = epochTime()
 
-  for i in indices:
+  for j, i in indices:
     discard r.rank(i)
+    if j mod 100 == 0:
+      echo j
   let endTime = epochTime()
 
   echo "We have required ", endTime - startTime, " seconds to compute ", ops, " ranks."

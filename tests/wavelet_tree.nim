@@ -5,7 +5,7 @@ suite "wavelet tree structure":
   test "rank on a wavelet tree":
     let
       x = "ACGGTACTACGAGAGTAGCAGTTTAGCGTAGCATGCTAGCG"
-      w = waveletTree[int32](x)
+      w = waveletTree(x)
     for i in 0 .. high(x):
       for c in "ACGT":
         var count = 0

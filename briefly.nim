@@ -12,86 +12,73 @@ proc select*[T](s: set[T], i: int): T =
       inc count
     inc result
 
-type
-  AnyInt* = int32 or int64
-  BitArray*[T] = object
-    data: seq[T]
+type BitArray* = object
+  data: seq[int]
 
-proc bits*[T: AnyInt](k: int): BitArray[T] =
-  const L = sizeof(T) * 8
+proc bits*(k: int): BitArray =
+  const L = sizeof(int) * 8
   let r = k div L + (if k mod L == 0: 0 else: 1)
-  result = BitArray[T](data: newSeq[T](r))
+  result = BitArray(data: newSeq[int](r))
   # shallow(result.data)
 
-proc len*[T: AnyInt](bits: BitArray[T]): int =
-  bits.data.len * sizeof(T) * 8
+proc len*(bits: BitArray): int =
+  bits.data.len * sizeof(int) * 8
 
-proc `[]`*[T: AnyInt](b: T, i: T): bool {.inline.} =
+proc `[]`*(b: int, i: int): bool {.inline.} =
   ((b shr i) mod 2) != 0
 
-proc `[]`*[T: AnyInt](bits: BitArray[T], i: T): bool {.inline.} =
-  const L = sizeof(T) * 8
+proc `[]`*(bits: BitArray, i: int): bool {.inline.} =
+  const L = sizeof(int) * 8
   let
-    b = bits.data[(i div L).int]
+    b = bits.data[i div L]
     j = i mod L
   return b[j]
 
-proc `[]=`*[T: AnyInt](bits: var BitArray[T], i: T, v: bool) {.inline.} =
-  const L = sizeof(T) * 8
+proc `[]=`*(bits: var BitArray, i: int, v: bool) {.inline.} =
+  const L = sizeof(int) * 8
   let
     j = i mod L
-    k = (i div L).int
-    p = T(1) shl j
+    k = i div L
+    p = 1 shl j
   if v:
     bits.data[k] = bits.data[k] or p
   else:
     bits.data[k] = bits.data[k] and (not p)
 
-template contains*[T: AnyInt](bits: BitArray[T], i: T): bool = bits[i]
+template contains*(bits: BitArray, i: int): bool = bits[i]
 
-template incl*[T: AnyInt](bits: var BitArray[T], i: T) =
+template incl*(bits: var BitArray, i: int) =
   bits[i] = true
 
-proc bits*(xs: varargs[Slice[int32]]): BitArray[int32] =
+proc bits*(xs: varargs[Slice[int]]): BitArray =
   var m = 0
   for x in xs:
     m = max(m, x.b)
-  result = bits[int32](m.nextPowerOfTwo)
+  result = bits(m.int.nextPowerOfTwo)
   for x in xs:
     for y in x:
       result.incl(y)
 
-proc bits*(xs: varargs[Slice[int64]]): BitArray[int64] =
-  var m = 0'i64
-  for x in xs:
-    m = max(m, x.b)
-  result = bits[int64](m.int.nextPowerOfTwo)
-  for x in xs:
-    for y in x:
-      result.incl(y)
-
-proc bin*[T: AnyInt](t: T): string
-
-proc rank*[T: AnyInt](t: T, i: T): auto =
-  const L = sizeof(T) * 8
+proc rank*(t, i: int): auto =
+  const L = sizeof(int) * 8
   if i == 0:
     return 0
   if i >= L:
     return countSetBits(t)
-  let mask = T(-1) shr (L - i)
+  let mask = -1 shr (L - i)
   countSetBits(mask and t)
 
-proc rank*[T: AnyInt](s: BitArray[T], i: T): int =
-  const L = sizeof(T) * 8
+proc rank*(s: BitArray, i: int): int =
+  const L = sizeof(int) * 8
   let
     j = i mod L
-    k = (i div L).int
+    k = i div L
   for r in 0 .. < k:
     result += countSetBits(s.data[r])
   result += rank(s.data[k], j)
 
-proc select*[T: AnyInt](t: T, i: T): T =
-  const L = sizeof(T) * 8
+proc select*(t, i: int): int =
+  const L = sizeof(int) * 8
   var
     t1 = t
     i1 = i
@@ -103,8 +90,8 @@ proc select*[T: AnyInt](t: T, i: T): T =
   if result > L:
     return 0
 
-proc select*[T: AnyInt](s: BitArray[T], i: int): T =
-  const L = sizeof(T) * 8
+proc select*(s: BitArray, i: int): int =
+  const L = sizeof(int) * 8
   var
     r = i
     count = 0
@@ -114,28 +101,38 @@ proc select*[T: AnyInt](s: BitArray[T], i: int): T =
       break
     r -= p
     inc count
-  return T(count * L) + select(s.data[count], T(r))
+  return (count * L) + select(s.data[count], r)
 
-proc bin*[T: AnyInt](t: T): string =
-  const L = sizeof(T) * 8
+proc bin*(t: int): string =
+  const L = sizeof(int) * 8
   result = ""
-  for i in 1 .. T(L):
+  for i in 1 .. L:
     if t[L - i]:
       result &= '1'
     else:
       result &= '0'
 
-proc `$`*[T: AnyInt](b: BitArray[T]): string =
-  join(b.data.map(bin).reversed, " ")
+proc `$`*(b: BitArray): string =
+  const zeroString = bin(0)
+  let blocks = b.data.map(bin).reversed
+  var
+    nonZero = false
+    bs = newSeq[string]()
+  for blk in blocks:
+    if blk != zeroString:
+      nonZero = true
+    if nonZero:
+      bs.add(blk)
+  return join(bs, " ")
 
-template nextPerm(v: int32): auto =
+template nextPerm(v: int): auto =
   let t = (v or (v - 1)) + 1
   t or ((((t and -t) div (v and -v)) shr 1) - 1)
 
-iterator blocks*(popcount, size: int32): auto {.inline.} =
+iterator blocks*(popcount, size: int): auto {.inline.} =
   let
-    initial = (1'i32 shl popcount) - 1
-    mask = (1'i32 shl size) - 1
+    initial = (1 shl popcount) - 1
+    mask = (1 shl size) - 1
   var v = initial
   while v >= initial:
     yield v
@@ -143,36 +140,36 @@ iterator blocks*(popcount, size: int32): auto {.inline.} =
 
 
 # TODO replace the indices with bit arrays to save space
-type RRR*[T] = object
-  ba*: BitArray[T]
-  index1*: seq[T]
+type RRR* = object
+  ba*: BitArray
+  index1*: seq[int]
   index2*: seq[int16]
 
-proc rrr*[T: AnyInt](ba: BitArray[T]): RRR[T] =
+proc rrr*(ba: BitArray): RRR =
   const
-    step1 = sizeof(T) * 8 * 8
-    step2 = sizeof(T) * 8
+    step1 = sizeof(int) * 8 * 8
+    step2 = sizeof(int) * 8
   let L = ba.len
   var
-    index1 = newSeqOfCap[T](L div step1)
+    index1 = newSeqOfCap[int](L div step1)
     index2 = newSeqOfCap[int16](L div step2)
     i = 0
-    pos = T(0)
-    last = T(0)
+    pos = 0
+    last = 0
   while pos < L:
-    let k = T(rank(ba, pos))
+    let k = rank(ba, pos)
     index2.add(int16(k - last))
     if i mod 8 == 0:
       last = k
       index1.add(k)
     i += 1
     pos += step2
-  return RRR[T](ba: ba, index1: index1, index2: index2)
+  return RRR(ba: ba, index1: index1, index2: index2)
 
-proc rank*[T](r: RRR[T], i: int): T =
+proc rank*(r: RRR, i: int): int =
   const
-    step1 = sizeof(T) * 8 * 8
-    step2 = sizeof(T) * 8
+    step1 = sizeof(int) * 8 * 8
+    step2 = sizeof(int) * 8
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
 
 proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
@@ -192,20 +189,20 @@ proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
       aMax = middle
   return (aMin, s[aMin])
 
-proc select*[T](r: RRR[T], i: int): T =
+proc select*(r: RRR, i: int): int =
   const
-    step1 = sizeof(T) * 8 * 8
-    step2 = sizeof(T) * 8
+    step1 = sizeof(int) * 8 * 8
+    step2 = sizeof(int) * 8
   let
-    (i1, s1) = binarySearch(r.index1, T(i), r.index1.low, r.index1.high)
+    (i1, s1) = binarySearch(r.index1, i, r.index1.low, r.index1.high)
     (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + 8, r.index2.high))
-  return T(step1 * i1 + step2 * i2) + select(r.ba.data[T(i1 + i2)], T(i - s1 - s2))
+  return (step1 * i1 + step2 * i2) + select(r.ba.data[i1 + i2], i - s1 - s2)
 
-type WaveletTree*[T] = object
+type WaveletTree* = object
   alphabet*: seq[char]
   len*: int
-  data*: ref RRR[T]
-  left*, right*: ref WaveletTree[T]
+  data*: ref RRR
+  left*, right*: ref WaveletTree
 
 proc uniq*(content: string or seq[char]): seq[char] =
   result = @[]
@@ -223,30 +220,30 @@ template split(alphabet: seq[char]): auto =
   let L = high(alphabet) div 2
   (alphabet[0 .. L], alphabet[L+1 .. high(alphabet)])
 
-proc waveletTree*[T](content: string, alphabet: seq[char]): WaveletTree[T] =
+proc waveletTree*(content: string, alphabet: seq[char]): WaveletTree =
   if alphabet.len == 1:
-    return WaveletTree[T](alphabet: alphabet, len: content.len)
+    return WaveletTree(alphabet: alphabet, len: content.len)
   let (alphaLeft, alphaRight) = split(alphabet)
   var
     contentLeft = ""
     contentRight = ""
-    b = bits[T](content.len)
+    b = bits(content.len)
   for i, c in content:
     if alphaLeft.contains(c):
       contentLeft.add(c)
     else:
-      incl(b, T(i))
+      incl(b, i)
       contentRight.add(c)
   let
-    left = waveletTree[T](contentLeft, alphaLeft)
-    right = waveletTree[T](contentRight, alphaRight)
+    left = waveletTree(contentLeft, alphaLeft)
+    right = waveletTree(contentRight, alphaRight)
     data = rrr(b)
-  return WaveletTree[T](alphabet: alphabet, len: content.len, data: ~data, left: ~left, right: ~right)
+  return WaveletTree(alphabet: alphabet, len: content.len, data: ~data, left: ~left, right: ~right)
 
-proc waveletTree*[T](content: string): WaveletTree[T] =
-  waveletTree[T](content, uniq(content))
+proc waveletTree*(content: string): WaveletTree =
+  waveletTree(content, uniq(content))
 
-proc rank*[T](w: WaveletTree[T], c: char, t: int): auto =
+proc rank*(w: WaveletTree, c: char, t: int): auto =
   if not w.alphabet.contains(c):
     return -1
   if w.alphabet.len == 1:

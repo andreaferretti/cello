@@ -19,9 +19,8 @@ proc main() =
   for _ in 0 .. < ops:
     indices.add(random(width))
 
-  echo "Initialization done"
-
   let r = rrr(b)
+  echo "Initialization done"
 
   sw.start()
   for i in indices:

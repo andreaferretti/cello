@@ -6,13 +6,17 @@ proc main() =
     width = 1_000_000
     ops = 10000
   echo "Initialization starting"
-  var b = bits[int64](width)
   randomize(12435)
-
+  var
+    b = bits[int64](width)
+    indices = newSeq[int]()
 
   for i in 0 .. <  width:
     if random(2) == 0:
       incl(b, i)
+
+  for _ in 0 .. < ops:
+    indices.add(random(width))
 
   echo "Initialization done"
 
@@ -20,10 +24,8 @@ proc main() =
     r = rrr(b)
     startTime = epochTime()
 
-  for j in 0 .. < ops:
-    let i = random(width)
+  for i in indices:
     discard r.rank(i)
-    echo j
   let endTime = epochTime()
 
   echo "We have required ", endTime - startTime, " seconds to compute ", ops, " ranks."

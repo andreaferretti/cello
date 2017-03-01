@@ -27,3 +27,10 @@ task tests, "run briefly tests":
 task benchmark, "run briefly benchmarks":
   withDir "benchmarks":
     exec "nimble benchmark"
+
+task space, "run briefly space benchmarks":
+  --define: release
+  --define: nimTypeNames
+  --path: "."
+  --run
+  setCommand "c", "benchmarks/space.nim"

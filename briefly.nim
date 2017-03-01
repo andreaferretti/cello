@@ -82,13 +82,13 @@ proc select*(t, i: int): int =
   var
     t1 = t
     i1 = i
-  while i1 > 0:
+  if i > countSetBits(t):
+    return 0
+  while i1 > 0 and t1 != 0:
     let s = trailingZeroBits(t1) + 1
     t1 = t1 shr s
     result += s
     dec i1
-  if result > L:
-    return 0
 
 proc select*(s: BitArray, i: int): int =
   const L = sizeof(int) * 8
@@ -176,7 +176,9 @@ proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
   var
     aMin = min
     aMax = max
+    count = 0
   while aMin < aMax:
+    count += 1
     let
       middle = (aMin + aMax) div 2
       v = s[middle]

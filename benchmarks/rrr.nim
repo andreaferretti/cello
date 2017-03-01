@@ -4,8 +4,7 @@ import briefly
 proc main() =
   const
     width = 1_000_000_000
-    rankOps = 10000
-    selectOps = 100
+    ops = 10000
   echo "Initialization starting"
   randomize(12435)
   var
@@ -18,9 +17,8 @@ proc main() =
     if random(2) == 0:
       incl(b, i)
 
-  for _ in 0 .. < rankOps:
+  for _ in 0 .. < ops:
     indicesRank.add(random(width))
-  for _ in 0 .. < selectOps:
     indicesSelect.add(random(width div 3))
 
   let r = rrr(b)
@@ -31,14 +29,14 @@ proc main() =
     discard r.rank(i)
   sw.stop()
 
-  echo "We have required ", sw.secs(), " seconds to compute ", rankOps, " ranks."
+  echo "We have required ", sw.secs(), " seconds to compute ", ops, " ranks."
 
   sw.start()
   for i in indicesSelect:
     discard r.select(i)
   sw.stop()
 
-  echo "We have required ", sw.secs(), " seconds to compute ", selectOps, " selects."
+  echo "We have required ", sw.secs(), " seconds to compute ", ops, " selects."
 
 when isMainModule:
   main()

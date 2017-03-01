@@ -24,6 +24,8 @@ suite "bit access in integers":
     check rank(126851658, 64) == 15
     check rank(126851658, 80) == 15
   test "select on 64 bit integers":
+    echo bin(-461274)
+    echo bin(126851658)
     check select(-461274, 0)  == 0
     check select(-461274, 1)  == 2
     check select(-461274, 4)  == 10

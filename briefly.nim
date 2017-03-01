@@ -260,3 +260,14 @@ proc rank*(w: WaveletTree, c: char, t: int): auto =
   elif alphaRight.contains(c):
     let r = w.data[].rank(t)
     return w.right[].rank(c, r)
+
+proc `[]`*(w: WaveletTree, t: int): char =
+  if w.alphabet.len == 1:
+    return w.alphabet[0]
+  let bit = w.data.ba[t]
+  if bit:
+    let r = w.data[].rank(t)
+    return w.right[][r]
+  else:
+    let r = t - w.data[].rank(t)
+    return w.left[][r]

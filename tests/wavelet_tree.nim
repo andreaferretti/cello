@@ -13,3 +13,9 @@ suite "wavelet tree structure":
           if c == d:
             count += 1
         check w.rank(c, i) == count
+  test "random access on a wavelet tree":
+    let
+      x = "ACGGTACTACGAGAGTAGCAGTTTAGCGTAGCATGCTAGCG"
+      w = waveletTree(x)
+    for i in 0 .. high(x):
+      check w[i] == x[i]

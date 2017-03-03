@@ -145,10 +145,12 @@ type RRR* = object
   index1*: seq[int]
   index2*: seq[int16]
 
+const
+  stepWidth = 64
+  step1 = sizeof(int) * 8 * stepWidth
+  step2 = sizeof(int) * 8
+
 proc rrr*(ba: BitArray): RRR =
-  const
-    step1 = sizeof(int) * 8 * 8
-    step2 = sizeof(int) * 8
   let L = ba.len
   var
     index1 = newSeqOfCap[int](L div step1)
@@ -160,16 +162,13 @@ proc rrr*(ba: BitArray): RRR =
   for i, cell in ba.data:
     sum2 += countSetBits(cell)
     index2.add(int16(sum2))
-    if i + 1 mod 8 == 0:
+    if i + 1 mod stepWidth == 0:
       sum1 += sum2
       index1.add(sum1)
       sum2 = 0
   return RRR(ba: ba, index1: index1, index2: index2)
 
 proc rank*(r: RRR, i: int): int =
-  const
-    step1 = sizeof(int) * 8 * 8
-    step2 = sizeof(int) * 8
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
 
 proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
@@ -192,12 +191,9 @@ proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
   return (aMin, s[aMin])
 
 proc select*(r: RRR, i: int): int =
-  const
-    step1 = sizeof(int) * 8 * 8
-    step2 = sizeof(int) * 8
   let
     (i1, s1) = binarySearch(r.index1, i, r.index1.low, r.index1.high)
-    (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + 8, r.index2.high))
+    (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + stepWidth, r.index2.high))
   return (step1 * i1 + step2 * i2) + select(r.ba.data[i1 + i2], i - s1 - s2)
 
 type WaveletTree* = object

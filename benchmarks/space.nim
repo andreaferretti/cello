@@ -1,8 +1,9 @@
 import random
 import briefly
 
+const width = 1_000_000_000
+
 proc makeRRR(): auto =
-  const width = 1_000_000_000
   var b = bits(width)
   randomize(12435)
 
@@ -17,6 +18,7 @@ proc main() =
   GC_fullCollect()
   echo GC_getStatistics()
   dumpNumberOfInstances()
+  echo "Number of bytes needed for raw data: ", (width div 8)
 
 when isMainModule:
   main()

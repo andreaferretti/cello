@@ -11,6 +11,8 @@ proc main() =
       incl(b, i)
 
   let r = rrr(b)
+  GC_fullCollect()
+  echo GC_getStatistics()
   dumpNumberOfInstances()
 
 when isMainModule:

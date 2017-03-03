@@ -138,6 +138,25 @@ iterator blocks*(popcount, size: int): auto {.inline.} =
     yield v
     v = nextPerm(v) and mask
 
+type IntArray* = object
+  ba: BitArray
+  size: int
+
+proc len*(ints: IntArray): auto = ints.ba.len div ints.size
+
+proc ints*(k, size: int): IntArray =
+  return IntArray(ba: bits(k * size), size: size)
+
+proc `[]*`(ints: IntArray, i: int): int =
+  const L = sizeof(int) * 8
+  let
+    startBit = i * ints.size
+    endBit = startBit + i
+    startByte = startBit div L
+    startOffset = startBit - (startByte * L)
+    endByte = endBit div L
+    endOffset = endBit - (endByte * L)
+  # TODO finish implementation
 
 # TODO replace the indices with bit arrays to save space
 type RRR* = object

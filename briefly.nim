@@ -78,7 +78,6 @@ proc rank*(s: BitArray, i: int): int =
   result += rank(s.data[k], j)
 
 proc select*(t, i: int): int =
-  const L = sizeof(int) * 8
   var
     t1 = t
     i1 = i
@@ -139,7 +138,7 @@ iterator blocks*(popcount, size: int): auto {.inline.} =
     v = nextPerm(v) and mask
 
 type IntArray* = object
-  ba: BitArray
+  ba*: BitArray
   size: int
 
 proc len*(ints: IntArray): auto = ints.ba.len div ints.size
@@ -147,16 +146,35 @@ proc len*(ints: IntArray): auto = ints.ba.len div ints.size
 proc ints*(k, size: int): IntArray =
   return IntArray(ba: bits(k * size), size: size)
 
-proc `[]*`(ints: IntArray, i: int): int =
+import future
+
+proc `[]`*(ints: IntArray, i: int): int =
   const L = sizeof(int) * 8
   let
     startBit = i * ints.size
-    endBit = startBit + i
     startByte = startBit div L
     startOffset = startBit - (startByte * L)
-    endByte = endBit div L
-    endOffset = endBit - (endByte * L)
-  # TODO finish implementation
+    inSameWord = startOffset + ints.size <= L
+  if inSameWord:
+    let
+      word = ints.ba.data[startByte]
+      shifted = word shr startOffset
+      mask = -1 shr (L - ints.size)
+    return shifted and mask
+  else:
+    let
+      endOffset = startOffset + ints.size - 1 - L
+      word1 = ints.ba.data[startByte]
+      word2 = ints.ba.data[startByte + 1]
+      shifted1 = word1 shr startOffset
+      mask = -1 shr (L - endOffset)
+      shifted2 = (word2 and mask) shl (L - startOffset)
+    return shifted1 or shifted2
+
+proc testtest*(): IntArray =
+  result = ints(2, 64)
+  result.ba.data[0] = 1244176214
+  result.ba.data[1] = 274618461
 
 # TODO replace the indices with bit arrays to save space
 type RRR* = object

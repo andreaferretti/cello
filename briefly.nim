@@ -150,6 +150,7 @@ import future
 
 proc `[]`*(ints: IntArray, i: int): int =
   const L = sizeof(int) * 8
+  assert((i + 1) * ints.size <= ints.ba.len)
   let
     startBit = i * ints.size
     startByte = startBit div L
@@ -163,7 +164,7 @@ proc `[]`*(ints: IntArray, i: int): int =
     return shifted and mask
   else:
     let
-      endOffset = startOffset + ints.size - 1 - L
+      endOffset = startOffset + ints.size - L
       word1 = ints.ba.data[startByte]
       word2 = ints.ba.data[startByte + 1]
       shifted1 = word1 shr startOffset
@@ -171,10 +172,35 @@ proc `[]`*(ints: IntArray, i: int): int =
       shifted2 = (word2 and mask) shl (L - startOffset)
     return shifted1 or shifted2
 
-proc testtest*(): IntArray =
-  result = ints(2, 64)
-  result.ba.data[0] = 1244176214
-  result.ba.data[1] = 274618461
+proc `[]=`*(ints: var IntArray, i, v: int) =
+  const L = sizeof(int) * 8
+  assert((i + 1) * ints.size <= ints.ba.len)
+  assert(v < 2 ^ ints.size)
+  let
+    startBit = i * ints.size
+    startByte = startBit div L
+    startOffset = startBit - (startByte * L)
+    inSameWord = startOffset + ints.size <= L
+  if inSameWord:
+    let
+      word = ints.ba.data[startByte]
+      shifted = v shl startOffset
+      mask = not ((-1 shr (L - ints.size)) shl startOffset)
+      newWord = (word and mask) or shifted
+    ints.ba.data[startByte] = newWord
+  else:
+    let
+      endOffset = startOffset + ints.size - 1 - L
+      word1 = ints.ba.data[startByte]
+      mask1 = not (-1 shl startOffset)
+      shifted1 = v shl startOffset
+      newWord1 = (word1 and mask1) or shifted1
+      word2 = ints.ba.data[startByte + 1]
+      mask2 = not (-1 shr (L - endOffset))
+      shifted2 = v shr (L - startOffset)
+      newWord2 = (word2 and mask2) or shifted2
+    ints.ba.data[startByte] = newWord1
+    ints.ba.data[startByte + 1] = newWord2
 
 # TODO replace the indices with bit arrays to save space
 type RRR* = object

@@ -1,11 +1,14 @@
-import briefly, unittest
+import briefly, unittest, random
 
 import future
 suite "int arrays":
   test "int array access":
-    let x = @[123, 489, 511, 231, 155, 1, 0, 81, 488, 212]
-    var y = ints(x.len, 9)
-    for i, v in x:
-      y[i] = v
-    for i, v in x:
-      check(y[i] == v)
+    var
+      x = newSeq[int](100)
+      y = ints(100, 9)
+    for i in 0 .. 99:
+      let r = random(512)
+      x[i] = r
+      y[i] = r
+    for i in 0 .. 99:
+      check(y[i] == x[i])

@@ -140,11 +140,12 @@ iterator blocks*(popcount, size: int): auto {.inline.} =
 type IntArray* = object
   ba*: BitArray
   size: int
+  length: int
 
-proc len*(ints: IntArray): auto = ints.ba.len div ints.size
+proc capacity*(ints: IntArray): auto = ints.ba.len div ints.size
 
 proc ints*(k, size: int): IntArray =
-  return IntArray(ba: bits(k * size), size: size)
+  return IntArray(ba: bits(k * size), size: size, length: 0)
 
 import future
 
@@ -201,6 +202,12 @@ proc `[]=`*(ints: var IntArray, i, v: int) =
       newWord2 = (word2 and mask2) or shifted2
     ints.ba.data[startByte] = newWord1
     ints.ba.data[startByte + 1] = newWord2
+  ints.length = max(ints.length, i + 1)
+
+proc add*(ints: var IntArray, v: int) =
+  ints[ints.length] = v
+
+proc len*(ints: IntArray): int = ints.length
 
 # TODO replace the indices with bit arrays to save space
 type RRR* = object

@@ -20,9 +20,13 @@ proc main() =
   for _ in 0 .. < ops:
     indicesRank.add(random(width))
     indicesSelect.add(random(width div 3))
-
-  let r = rrr(b)
   echo "Initialization done"
+
+  sw.start()
+  let r = rrr(b)
+  sw.stop()
+
+  echo "We have required ", sw.secs(), " seconds to fill a ", width, " size rrr structure."
 
   sw.start()
   for i in indicesRank:

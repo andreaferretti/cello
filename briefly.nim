@@ -176,7 +176,7 @@ proc `[]`*(ints: IntArray, i: int): int =
 proc `[]=`*(ints: var IntArray, i, v: int) =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
-  assert(v < 2 ^ ints.size)
+  #assert(v < 2 ^ ints.size)
   let
     startBit = i * ints.size
     startByte = startBit div L
@@ -212,8 +212,9 @@ proc len*(ints: IntArray): int = ints.length
 # TODO replace the indices with bit arrays to save space
 type RRR* = object
   ba*: BitArray
-  index1*: seq[int]
-  index2*: seq[int16]
+  index1, index2: IntArray
+  # index1*: seq[int]
+  # index2*: seq[int16]
 
 const
   stepWidth = 64
@@ -223,15 +224,15 @@ const
 proc rrr*(ba: BitArray): RRR =
   let L = ba.len
   var
-    index1 = newSeqOfCap[int](L div step1)
-    index2 = newSeqOfCap[int16](L div step2)
+    index1 = ints(L div step1 + 1, 64) # newSeqOfCap[int](L div step1)
+    index2 = ints(L div step2 + 1, 16) # newSeqOfCap[int16](L div step2)
     sum1 = 0
     sum2 = 0
   index1.add(0)
   index2.add(0)
   for i, cell in ba.data:
     sum2 += countSetBits(cell)
-    index2.add(int16(sum2))
+    index2.add(sum2)
     if i + 1 mod stepWidth == 0:
       sum1 += sum2
       index1.add(sum1)
@@ -241,7 +242,7 @@ proc rrr*(ba: BitArray): RRR =
 proc rank*(r: RRR, i: int): int =
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
 
-proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
+proc binarySearch[T](s: T, value, min, max: int): (int, int) =
   var
     aMin = min
     aMax = max
@@ -262,8 +263,8 @@ proc binarySearch[T](s: seq[T], value: T, min, max: int): (int, T) =
 
 proc select*(r: RRR, i: int): int =
   let
-    (i1, s1) = binarySearch(r.index1, i, r.index1.low, r.index1.high)
-    (i2, s2) = binarySearch(r.index2, (i - i1).int16, i1, min(i1 + stepWidth, r.index2.high))
+    (i1, s1) = binarySearch(r.index1, i, 0, r.index1.length - 1)
+    (i2, s2) = binarySearch(r.index2, i - i1, i1, min(i1 + stepWidth, r.index2.length - 1))
   return (step1 * i1 + step2 * i2) + select(r.ba.data[i1 + i2], i - s1 - s2)
 
 type WaveletTree* = object

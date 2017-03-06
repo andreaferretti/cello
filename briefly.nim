@@ -209,12 +209,12 @@ proc add*(ints: var IntArray, v: int) =
 
 proc len*(ints: IntArray): int = ints.length
 
-# TODO replace the indices with bit arrays to save space
-type RRR* = object
-  ba*: BitArray
-  index1, index2: IntArray
-  # index1*: seq[int]
-  # index2*: seq[int16]
+type
+  RRR* = object
+    ba: BitArray
+    index1, index2: IntArray
+  RRRStats* = object
+    data*, index1*, index2*: int
 
 const
   stepWidth = 64
@@ -222,10 +222,13 @@ const
   step2 = sizeof(int) * 8
 
 proc rrr*(ba: BitArray): RRR =
-  let L = ba.len
+  let
+    L = ba.len
+    w1 = log2(L.float).int + 1
+    w2 = log2(step1.float).int + 1
   var
-    index1 = ints(L div step1 + 1, 64) # newSeqOfCap[int](L div step1)
-    index2 = ints(L div step2 + 1, 16) # newSeqOfCap[int16](L div step2)
+    index1 = ints(L div step1 + 1, w1)
+    index2 = ints(L div step2 + 1, w2)
     sum1 = 0
     sum2 = 0
   index1.add(0)
@@ -238,6 +241,9 @@ proc rrr*(ba: BitArray): RRR =
       index1.add(sum1)
       sum2 = 0
   return RRR(ba: ba, index1: index1, index2: index2)
+
+proc stats*(r: RRR): RRRStats =
+  RRRStats(data: r.ba.len, index1: r.index1.ba.len, index2: r.index2.ba.len)
 
 proc rank*(r: RRR, i: int): int =
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)

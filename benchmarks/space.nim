@@ -19,6 +19,7 @@ proc main() =
   echo GC_getStatistics()
   dumpNumberOfInstances()
   echo "Number of bytes needed for raw data: ", (width div 8)
+  echo "Number of bits: ", r.stats
 
 when isMainModule:
   main()

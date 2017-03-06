@@ -1,4 +1,5 @@
 nimcache
 /tests/test
 /benchmarks/rrr
+/benchmarks/wavelet_tree
 /benchmarks/space

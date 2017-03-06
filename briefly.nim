@@ -248,7 +248,7 @@ proc stats*(r: RRR): RRRStats =
 proc rank*(r: RRR, i: int): int =
   return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
 
-proc binarySearch[T](s: T, value, min, max: int): (int, int) =
+proc binarySearch(s: IntArray, value, min, max: int): (int, int) =
   var
     aMin = min
     aMax = max

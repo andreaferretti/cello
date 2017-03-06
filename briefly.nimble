@@ -24,9 +24,13 @@ task test, "run briefly tests":
 task tests, "run briefly tests":
   setCommand "test"
 
-task benchmark, "run briefly benchmarks":
+task benchmarkRRR, "run briefly benchmarks":
   withDir "benchmarks":
-    exec "nimble benchmark"
+    exec "nimble benchmarkRRR"
+
+task benchmarkWT, "run briefly benchmarks":
+  withDir "benchmarks":
+    exec "nimble benchmarkWT"
 
 task space, "run briefly space benchmarks":
   --define: release

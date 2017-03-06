@@ -252,9 +252,7 @@ proc binarySearch(s: IntArray, value, min, max: int): (int, int) =
   var
     aMin = min
     aMax = max
-    count = 0
   while aMin < aMax:
-    count += 1
     let
       middle = (aMin + aMax) div 2
       v = s[middle]

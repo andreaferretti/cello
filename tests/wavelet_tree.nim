@@ -1,4 +1,4 @@
-import briefly, unittest
+import briefly, strutils, unittest
 
 
 suite "wavelet tree structure":
@@ -19,3 +19,13 @@ suite "wavelet tree structure":
       w = waveletTree(x)
     for i in 0 .. high(x):
       check w[i] == x[i]
+#  test "select on a wavelet tree":
+#    let
+#      x = "ACGGTACTACGAGAGTAGCAGTTTAGCGTAGCATGCTAGCG"
+#      w = waveletTree(x)
+#    for i in 0 .. 5:
+#      for c in "ACGT":
+#        var pos = 0
+#        for _ in 0 .. i:
+#          pos = x.find(c, pos) + 1
+#        check w.select(c, i) == pos

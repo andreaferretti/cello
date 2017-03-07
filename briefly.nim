@@ -102,6 +102,18 @@ proc select*(s: BitArray, i: int): int =
     inc count
   return (count * L) + select(s.data[count], r)
 
+proc naiveRank*(b: BitArray, i: int): int =
+  for j in 0 ..< i:
+    if b[j]:
+      inc result
+
+proc naiveSelect*(b: BitArray, i: int): int =
+  var count = 0
+  while count < i:
+    if b.contains(result):
+      inc count
+    inc result
+
 proc bin*(t: int): string =
   const L = sizeof(int) * 8
   result = ""
@@ -235,11 +247,11 @@ proc rrr*(ba: BitArray): RRR =
   index2.add(0)
   for i, cell in ba.data:
     sum2 += countSetBits(cell)
-    index2.add(sum2)
-    if i + 1 mod stepWidth == 0:
+    if (i + 1) mod stepWidth == 0:
       sum1 += sum2
       index1.add(sum1)
       sum2 = 0
+    index2.add(sum2)
   return RRR(ba: ba, index1: index1, index2: index2)
 
 proc stats*(r: RRR): RRRStats =
@@ -282,17 +294,19 @@ proc binarySearch0(s: IntArray, value, min, max, width: int): (int, int) =
       aMax = middle
   return (aMin, aMin * width - s[aMin])
 
+import future
+
 proc select*(r: RRR, i: int): int =
   let
-    (i1, s1) = binarySearch(r.index1, i, 0, r.index1.length - 1)
-    (i2, s2) = binarySearch(r.index2, i - i1, i1, min(i1 + stepWidth, r.index2.length - 1))
-  return (step1 * i1 + step2 * i2) + select(r.ba.data[i1 + i2], i - s1 - s2)
+    (i1, s1) = binarySearch(r.index1, i, 0, r.index1.length)
+    (i2, s2) = binarySearch(r.index2, i - s1, stepWidth * i1, min(stepWidth * (i1 + 1 ), r.index2.length))
+  return step2 * i2 + select(r.ba.data[i2], i - s1 - s2)
 
 proc select0*(r: RRR, i: int): int =
   let
-    (i1, s1) = binarySearch0(r.index1, i, 0, r.index1.length - 1, width = step1)
-    (i2, s2) = binarySearch0(r.index2, i - i1, i1, min(i1 + stepWidth, r.index2.length - 1), width = step2)
-  return (step1 * i1 + step2 * i2) + select(not r.ba.data[i1 + i2], i - s1 - s2)
+    (i1, s1) = binarySearch0(r.index1, i, 0, r.index1.length, width = step1)
+    (i2, s2) = binarySearch0(r.index2, i - s1, stepWidth * i1, min(stepWidth * (i1 + 1), r.index2.length), width = step2)
+  return step2 * i2 + select(not r.ba.data[i2], i - s1 - s2)
 
 type WaveletTree* = object
   alphabet*: seq[char]
@@ -365,3 +379,23 @@ proc `[]`*(w: WaveletTree, t: int): char =
   else:
     let r = t - w.data[].rank(t)
     return w.left[][r]
+
+proc select*(w: WaveletTree, c: char, t: int): auto =
+  if not w.alphabet.contains(c):
+    return -1
+  if w.alphabet.len == 1:
+    if t > w.len:
+      return -1
+    else:
+      return t
+  let (alphaLeft, alphaRight) = split(w.alphabet)
+  if alphaLeft.contains(c):
+    let r = w.left[].select(c, t)
+    if r == -1:
+      return -1
+    return w.data[].select0(r)
+  elif alphaRight.contains(c):
+    let r = w.right[].select(c, t)
+    if r == -1:
+      return -1
+    return w.data[].select(r)

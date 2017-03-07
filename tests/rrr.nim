@@ -1,21 +1,25 @@
-import briefly, unittest
-
+import briefly, unittest, random
+include ./utils
 
 suite "rrr structure":
   test "computing rank on rrr structures":
     let
-      b = bits(13..27, 35..80)
+      width = 10000
+      (b, _) = randomBits(width)
       r = rrr(b)
-    check r.rank(16) == 3
-    check r.rank(30) == 15
-    check r.rank(40) == 20
+    for i in 0 ..< width:
+      if b.rank(i) != r.rank(i):
+        echo i
+        check b.rank(i) == r.rank(i)
   test "computing select on rrr structures":
     let
-      b = bits(13..27, 35..80)
+      width = 10000
+      (b, count) = randomBits(width)
       r = rrr(b)
-    check r.select(3) == 16
-    check r.select(15) == 28
-    check r.select(20) == 40
+    for i in 0 ..< count:
+      if b.select(i) != r.select(i):
+        echo i
+        check b.select(i) == r.select(i)
   test "computing select 0 on rrr structures":
     let
       b = bits(13..27, 35..80)

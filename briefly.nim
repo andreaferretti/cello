@@ -12,6 +12,18 @@ proc select*[T](s: set[T], i: int): T =
       inc count
     inc result
 
+proc rank*(s: string, c: char, i: int): int =
+  for j in 0 ..< i:
+    if s[j] == c:
+      inc result
+
+proc select*(s: string, c: char, i: int): int =
+  var count = 0
+  while count < i:
+    if s[result] == c:
+      inc count
+    inc result
+
 type BitArray* = object
   data: seq[int]
 

@@ -17,14 +17,11 @@ suite "rrr structure":
       (b, count) = randomBits(width)
       r = rrr(b)
     for i in 0 ..< count:
-      if b.select(i) != r.select(i):
-        echo i
-        check b.select(i) == r.select(i)
-  test "computing select 0 on rrr structures":
+      check b.select(i) == r.select(i)
+  test "computing select0 on rrr structures":
     let
-      b = bits(13..27, 35..80)
+      width = 10000
+      (b, count) = randomBits(width)
       r = rrr(b)
-    check r.select0(3) == 3
-    check r.select0(15) == 30
-    check r.select0(20) == 35
-    check r.select0(40) == 101
+    for i in 0 ..< width - count:
+      check b.select0(i) == r.select0(i)

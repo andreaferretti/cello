@@ -304,7 +304,7 @@ proc binarySearch0(s: IntArray, value, min, max, width: int): (int, int) =
   while aMin < aMax:
     let
       middle = (aMin + aMax) div 2
-      v = middle * width - s[middle]
+      v = (middle - min) * width - s[middle]
     if v < value:
       if aMin == middle:
         aMax = middle
@@ -312,20 +312,34 @@ proc binarySearch0(s: IntArray, value, min, max, width: int): (int, int) =
         aMin = middle
     else:
       aMax = middle
-  return (aMin, aMin * width - s[aMin])
+  return (aMin, (aMin - min) * width - s[aMin])
 
 import future
 
 proc select*(r: RRR, i: int): int =
   let
-    (i1, s1) = binarySearch(r.index1, i, 0, r.index1.length)
-    (i2, s2) = binarySearch(r.index2, i - s1, stepWidth * i1, min(stepWidth * (i1 + 1 ), r.index2.length))
+    (i1, s1) = binarySearch(r.index1,
+      value = i,
+      min = 0,
+      max = r.index1.length)
+    (i2, s2) = binarySearch(r.index2,
+      value = i - s1,
+      min = stepWidth * i1,
+      max = min(stepWidth * (i1 + 1 ), r.index2.length))
   return step2 * i2 + select(r.ba.data[i2], i - s1 - s2)
 
 proc select0*(r: RRR, i: int): int =
   let
-    (i1, s1) = binarySearch0(r.index1, i, 0, r.index1.length, width = step1)
-    (i2, s2) = binarySearch0(r.index2, i - s1, stepWidth * i1, min(stepWidth * (i1 + 1), r.index2.length), width = step2)
+    (i1, s1) = binarySearch0(r.index1,
+      value = i,
+      min = 0,
+      max = r.index1.length,
+      width = step1)
+    (i2, s2) = binarySearch0(r.index2,
+      value = i - s1,
+      min = stepWidth * i1,
+      max = min(stepWidth * (i1 + 1), r.index2.length),
+      width = step2)
   return step2 * i2 + select(not r.ba.data[i2], i - s1 - s2)
 
 type WaveletTree* = object

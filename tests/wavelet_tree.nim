@@ -1,4 +1,4 @@
-import briefly, strutils, unittest
+import briefly, unittest
 
 
 suite "wavelet tree structure":

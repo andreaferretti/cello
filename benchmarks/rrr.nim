@@ -42,5 +42,12 @@ proc main() =
 
   echo "We have required ", sw.secs(), " seconds to compute ", ops, " selects."
 
+  sw.start()
+  for i in indicesSelect:
+    discard r.select0(i)
+  sw.stop()
+
+  echo "We have required ", sw.secs(), " seconds to compute ", ops, " selects for 0."
+
 when isMainModule:
   main()

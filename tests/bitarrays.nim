@@ -41,6 +41,12 @@ suite "bit arrays":
       (b, t) = randomBits(width)
     for i in 0 ..< t:
       check b.select(i) == b.naiveSelect(i)
+  test "bit array select 2":
+    let
+      width = 10000
+      (b, t) = randomBits(width)
+    for i in 0 ..< width - t:
+      check b.select0(i) == b.naiveSelect0(i)
   test "printing bit arrays":
     let b = bits(13..27, 35..80)
     check $b == "0000000000000000000000000000000000000000000000011111111111111111 1111111111111111111111111111100000001111111111111110000000000000"

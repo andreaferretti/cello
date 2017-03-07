@@ -102,6 +102,19 @@ proc select*(s: BitArray, i: int): int =
     inc count
   return (count * L) + select(s.data[count], r)
 
+proc select0*(s: BitArray, i: int): int =
+  const L = sizeof(int) * 8
+  var
+    r = i
+    count = 0
+  while count < s.data.len:
+    let p = L - countSetBits(s.data[count])
+    if r <= p:
+      break
+    r -= p
+    inc count
+  return (count * L) + select(not s.data[count], r)
+
 proc naiveRank*(b: BitArray, i: int): int =
   for j in 0 ..< i:
     if b[j]:
@@ -111,6 +124,13 @@ proc naiveSelect*(b: BitArray, i: int): int =
   var count = 0
   while count < i:
     if b.contains(result):
+      inc count
+    inc result
+
+proc naiveSelect0*(b: BitArray, i: int): int =
+  var count = 0
+  while count < i:
+    if not b.contains(result):
       inc count
     inc result
 

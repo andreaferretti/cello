@@ -468,7 +468,11 @@ type RotatedString* = object
   shift: int
 
 proc rotate*(s: string, i: int): RotatedString =
-  RotatedString(underlying: s, shift: i)
+  result = RotatedString(underlying: s, shift: i)
+
+proc rotate*(s: var string, i: int): RotatedString =
+  result = RotatedString(shift: i)
+  shallowCopy(result.underlying, s)
 
 proc `[]`*(r: RotatedString, i: int): char =
   let L = r.underlying.len

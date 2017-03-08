@@ -104,3 +104,25 @@ echo x[12]   # 1234
 echo x.len       # 13
 echo x.capacity  # 200
 ```
+
+### RRR
+
+The RRR bit vector is the first of our collections that is actually succinct.
+It consists of a bit arrays, plus two int arrays that stores `rank(i)` values
+for various `i`, at different scales.
+
+It can be created after a bit array, and allows constant time `rank` and
+logarithmic time `select` and `select0`.
+
+```nim
+let b: BitArray = ...
+let r = rrr(b)
+
+echo r.rank(123456)
+echo r.select(123456)
+echo r.select0(123456)
+```
+
+To convince oneself that the structure really is succinct, `stats(rrr)` returns
+a data structures that shows the space taken (in bits) by the bit array, as
+well as the two auxiliary indices.

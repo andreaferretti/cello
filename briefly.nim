@@ -462,3 +462,31 @@ proc stats*(w: WaveletTree): WaveletTreeStats =
     index1: left.index1 + right.index1 + s.index1,
     index2: left.index2 + right.index2 + s.index2
   )
+
+type RotatedString* = object
+  underlying: string
+  shift: int
+
+proc rotate*(s: string, i: int): RotatedString =
+  RotatedString(underlying: s, shift: i)
+
+proc `[]`*(r: RotatedString, i: int): char =
+  let L = r.underlying.len
+  assert 0 <= i and i < L
+  let s = i + r.shift
+  if s < L:
+    return r.underlying[s]
+  else:
+    return r.underlying[s - L]
+
+proc `[]=`*(r: var RotatedString, i: int, c: char) =
+  let L = r.underlying.len
+  assert 0 <= i and i < L
+  let s = i + r.shift
+  if s < L:
+    r.underlying[s] = c
+  else:
+    r.underlying[s - L] = c
+
+proc `$`*(r: RotatedString): string =
+  r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]

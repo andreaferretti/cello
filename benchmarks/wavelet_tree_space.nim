@@ -1,7 +1,7 @@
 import random
 import briefly
 
-const width = 1_000_000
+const width = 1_000_000_000
 
 proc makeWaveletTree(): auto =
   var b = newString(width)

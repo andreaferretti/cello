@@ -1,2 +1,2 @@
 import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
-  ./blocks, ./rrr, ./wavelet_tree, ./rotated_string
+  ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./burrows_wheeler

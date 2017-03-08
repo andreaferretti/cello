@@ -494,3 +494,22 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) =
 
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
+
+proc compareRotatedStrings(r, s: RotatedString): int =
+  let L = min(r.underlying.len, s.underlying.len)
+  for i in 0 ..< L:
+    if r[i] < s[i]: return -1
+    elif s[i] < r[i]: return 1
+  if r.underlying.len < s.underlying.len: return -1
+  elif s.underlying.len < r.underlying.len: return 1
+  return 0
+
+proc burrowsWheeler*(s: string): string =
+  let L = s.len
+  var
+    t = s
+    rotations = toSeq(0 ..< s.len).mapIt(t.rotate(it))
+  rotations.sort(compareRotatedStrings)
+  result = newString(L)
+  for i in 0 ..< L:
+    result[i] = rotations[i][L - 1]

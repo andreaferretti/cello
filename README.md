@@ -126,3 +126,33 @@ echo r.select0(123456)
 To convince oneself that the structure really is succinct, `stats(rrr)` returns
 a data structures that shows the space taken (in bits) by the bit array, as
 well as the two auxiliary indices.
+
+### Wavelet tree
+
+The wavelet tree is a tree constructed in the following way. An input string
+over a finite alphabet is given. The alphabet is split in two parts - the left
+and the right one, call them L and R.
+
+For each character of the string, we use a 1 bit to denote that the character
+belongs to R and a 0 bit to denote that it belongs to L. In this way, we
+obtain a bit sequence. The node stores the bit sequence as an RRR structures,
+and has two children: the one to the left is the wavelet tree associated to
+the substring composed by the characters in L, taken in order, and similarly
+for the right child.
+
+This structure allows to compute `rank(c, i)`, where `c` is a character in the
+alphabet, in time `O(log(l))`, and `select(c, i)` in time `O(log(l)log(n))`
+where `l` is the size of the alphabet and `n` is the size of the string.
+It also allows `O(log(l))` random access to read elements of the string.
+
+It can be used as follows:
+
+```nim
+let
+  x = "ACGGTACTACGAGAGTAGCAGTTTAGCGTAGCATGCTAGCG"
+  w = waveletTree(x)
+
+echo x.rank('A', 20)   # 7
+echo x.select('A', 7)  # 20
+echo x[12]             # 'G'
+```

@@ -2,4 +2,5 @@ nimcache
 /tests/test
 /benchmarks/rrr
 /benchmarks/wavelet_tree
+/benchmarks/wavelet_tree_space
 /benchmarks/space

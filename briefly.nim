@@ -354,11 +354,14 @@ proc select0*(r: RRR, i: int): int =
       width = step2)
   return step2 * i2 + select(not r.ba.data[i2], i - s1 - s2)
 
-type WaveletTree* = object
-  alphabet*: seq[char]
-  len*: int
-  data*: ref RRR
-  left*, right*: ref WaveletTree
+type
+  WaveletTree* = object
+    alphabet*: seq[char]
+    len*: int
+    data*: ref RRR
+    left*, right*: ref WaveletTree
+  WaveletTreeStats* = object
+    data*, index1*, index2*, depth*: int
 
 proc uniq*(content: string or seq[char]): seq[char] =
   result = @[]
@@ -445,3 +448,17 @@ proc select*(w: WaveletTree, c: char, t: int): auto =
     if r == -1:
       return -1
     return w.data[].select(r)
+
+proc stats*(w: WaveletTree): WaveletTreeStats =
+  if w.alphabet.len == 1:
+    return WaveletTreeStats(depth: 1)
+  let
+    left = stats(w.left[])
+    right = stats(w.right[])
+    s = stats(w.data[])
+  return WaveletTreeStats(
+    depth: max(left.depth, right.depth) + 1,
+    data: left.data + right.data + s.data,
+    index1: left.index1 + right.index1 + s.index1,
+    index2: left.index2 + right.index2 + s.index2
+  )

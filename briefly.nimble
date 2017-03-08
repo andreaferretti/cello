@@ -32,9 +32,16 @@ task benchmarkWT, "run briefly benchmarks":
   withDir "benchmarks":
     exec "nimble benchmarkWT"
 
-task space, "run briefly space benchmarks":
+task spaceRRR, "run briefly space benchmarks":
   --define: release
   --define: nimTypeNames
   --path: "."
   --run
   setCommand "c", "benchmarks/space.nim"
+
+task spaceWT, "run briefly space benchmarks":
+  --define: release
+  --define: nimTypeNames
+  --path: "."
+  --run
+  setCommand "c", "benchmarks/wavelet_tree_space.nim"

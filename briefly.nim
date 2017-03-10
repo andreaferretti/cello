@@ -504,12 +504,16 @@ proc compareRotatedStrings(r, s: RotatedString): int =
   elif s.underlying.len < r.underlying.len: return 1
   return 0
 
-proc burrowsWheeler*(s: string): string =
+proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
   let L = s.len
   var
     t = s
     rotations = toSeq(0 ..< s.len).mapIt(t.rotate(it))
   rotations.sort(compareRotatedStrings)
-  result = newString(L)
+  result.s = newString(L)
   for i in 0 ..< L:
-    result[i] = rotations[i][L - 1]
+    result.s[i] = rotations[i][L - 1]
+  for i in 0 ..< L:
+    if rotations[i].shift == 0:
+      result.i = i
+      break

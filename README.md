@@ -156,3 +156,29 @@ echo x.rank('A', 20)   # 7
 echo x.select('A', 7)  # 20
 echo x[12]             # 'G'
 ```
+
+### Rotated strings
+
+The next ingredient that we need it the Burrows-Wheeler transform of a string.
+It can be implemented using string rotations, so that's what we implement
+first. It turns out that this implementation is too slow for our purposes,
+but rotated strings may be useful anyway, so we left them in.
+
+A rotated strings is just a view over a string, rotated by a certain amount
+and wrapping around the end of the string. If the underlying string is a `var`,
+our implementation reuses that memory (which is then shared) to avoid the
+copy of the string. We just implement random access and printing:
+
+```nim
+var
+  s = "The quick brown fox jumps around the lazy dog"
+  t = s.rotate(20)
+
+echo t[10] # n
+echo t[20] # u
+
+t[18] = e
+
+echo s # The quick brown fox jumps around the lezy dog
+echo t # jumps around the lezy dogThe quick brown fox
+```

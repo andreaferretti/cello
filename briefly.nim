@@ -552,3 +552,44 @@ proc inverseBurrowsWheeler*(s: string, i: int): string =
     result[j] = currentChar
     currentIndex = eqCounters[currentIndex] + ltCounters[currentChar]
     currentChar = s[currentIndex]
+
+type
+  FMIndex* = object
+    bwt: WaveletTree
+    lookup: TableRef[char, int]
+    length: int
+  Positions* = object
+    first*, last*: int
+
+proc fmIndex*(s: string): FMIndex =
+  let alphabet = uniq(s).sorted(system.cmp[char])
+  var
+    charCount = newTable[char, int]()
+    lookup = newTable[char, int]()
+  for c in s:
+    if charCount.hasKey(c):
+      charCount[c] += 1
+    else:
+      charCount[c] = 1
+  var total = 0
+  for c in alphabet:
+    lookup[c] = total
+    total += charCount[c]
+  let (bwt, _) = burrowsWheeler(s)
+  return FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len)
+
+proc search*(index: FMIndex, pattern: string): Positions =
+  var
+    s = 0
+    e = index.length - 1
+  for i in countdown(pattern.high, 0):
+    let c = pattern[i]
+    s = index.lookup[c] + index.bwt.rank(c, s)
+    e = index.lookup[c] + index.bwt.rank(c, e)
+    if s > e: break
+  return Positions(first: s, last: e - 1)
+
+proc toSeq*(p: Positions): seq[int] =
+  result = newSeqOfCap[int](p.last - p.first + 1)
+  for i in p.first .. p.last:
+    result.add(i)

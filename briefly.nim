@@ -191,8 +191,6 @@ proc capacity*(ints: IntArray): auto = ints.ba.len div ints.size
 proc ints*(k, size: int): IntArray =
   return IntArray(ba: bits(k * size), size: size, length: 0)
 
-import future
-
 proc `[]`*(ints: IntArray, i: int): int =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
@@ -253,6 +251,13 @@ proc add*(ints: var IntArray, v: int) =
 
 proc len*(ints: IntArray): int = ints.length
 
+proc toIntSeq*(ints: IntArray): seq[int] =
+  result = newSeq[int](ints.length)
+  for i in 0 ..< ints.length:
+    result[i] = ints[i]
+
+proc `$`*(ints: IntArray): string = $(ints.toIntSeq)
+
 type
   RRR* = object
     ba: BitArray
@@ -265,14 +270,13 @@ const
   step1 = sizeof(int) * 8 * stepWidth
   step2 = sizeof(int) * 8
 
+proc maxBits(n: int): int = log2(n.float).int + 1
+
 proc rrr*(ba: BitArray): RRR =
-  let
-    L = ba.len
-    w1 = log2(L.float).int + 1
-    w2 = log2(step1.float).int + 1
+  let L = ba.len
   var
-    index1 = ints(L div step1 + 1, w1)
-    index2 = ints(L div step2 + 1, w2)
+    index1 = ints(L div step1 + 1, maxBits(L))
+    index2 = ints(L div step2 + 1, maxBits(step1))
     sum1 = 0
     sum2 = 0
   index1.add(0)
@@ -495,7 +499,7 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) =
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
 
-proc suffixArray*(s: string): seq[int] =
+proc suffixArray*(s: string): IntArray =
   let L = s.len
   proc compareIndices(j, k: int): int =
     var
@@ -511,8 +515,12 @@ proc suffixArray*(s: string): seq[int] =
       if currentK == L:
         currentK = 0
     return 0
-  result = toSeq(0 ..< s.len)
-  result.sort(compareIndices)
+  var r = toSeq(0 ..< s.len)
+  r.sort(compareIndices)
+  result = ints(s.len, maxBits(s.len))
+  for i in 0 ..< s.len:
+    result[i] = r[i]
+
 
 proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
   let

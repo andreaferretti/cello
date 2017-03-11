@@ -190,7 +190,8 @@ string length excluded. The permutation is obtained by considering, for each
 `i`, the string rotated by `i`, and sorting these strings in lexicographical
 order. The resulting order is the suffix array.
 
-It can be obtained as follows:
+Here the suffix array is represented as an IntArray. It can be obtained as
+follows:
 
 ```nim
 let

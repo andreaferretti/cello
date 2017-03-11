@@ -183,14 +183,35 @@ echo s # The quick brown fox jumps around the lezy dog
 echo t # jumps around the lezy dogThe quick brown fox
 ```
 
+### Suffix array
+
+The suffix array of a string is a permutation of the numbers from 0 up to the
+string length excluded. The permutation is obtained by considering, for each
+`i`, the string rotated by `i`, and sorting these strings in lexicographical
+order. The resulting order is the suffix array.
+
+It can be obtained as follows:
+
+```nim
+let
+  x = "this is a test."
+  y = suffixArray(x)
+
+echo y # @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
+```
+
 ### Burrows-Wheeler transform
 
 The [Burrows-Wheeler transform](http://michael.dipperstein.com/bwt/) of a string
 is a string having the same length, together with a distinguished index.
-The exact description of the algorithm is a outside the purpose of this
-documentation, but we recall the following two facts:
+Once one has a suffix array `sa` for the string `s`, the Burrows-Wheeler
+transform is the string which at the index `i` has the last character of the
+rotation of `s` by `sa[i]`. The distinguished index if the permutation of `0`.
 
-* the Burrows-Wheeler transform can be inverted
+We recall the following two facts:
+
+* the Burrows-Wheeler transform can be inverted - the exact algorithm is
+  outside the purposes of this documentation
 * whenever a character is a good predictor for the next one (in the original
   string), the string in the Burrows-Wheeler transform tends to have many
   repeated characters, which allows to compress it by run-length encoding.

@@ -227,3 +227,38 @@ let
 echo t # skynxeedg l in hh otTu c uwudrrfm abp qjoooza
 echo u # The quick brown fox jumps around the lazy dog
 ```
+
+### FM indices
+
+An [FM index](http://alexbowe.com/fm-index/) for a string puts together
+essentially all the pieces that we have described so far. The index itself
+holds a walevet tree for the Burrows-Wheeler transform of the string, together
+with a small auxiliary table having the size of the string alphabet.
+
+It can be used for various purposes, but the simplest one is backward search.
+Given a pattern `p` (a small string) and possibly long string `s`, there is a
+way to search all occurrences of `p` in time `O(L)`, where `L` is the length
+of `p` - the time is independent of `s` - using an FM index for `s`.
+
+Every occurrence of `p` appears as the prefix of some rotation of `s` - hence
+all such occurrences correspond to consecutive positions into the suffix
+array for `s`. The first and last such positions can be found as follows:
+
+```nim
+let
+  x = "mississippi"
+  pattern = "iss"
+  fm = fmIndex(x)
+  positions = fm.search(pattern)
+
+echo positions.first # 2
+echo positions.last  # 3
+
+for j in positions.first .. positions.last:
+  let i = sa[j]
+  echo x.rotate(i)
+
+# issippimiss
+# ississippim
+
+```

@@ -495,7 +495,7 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) =
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
 
-proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
+proc suffixArray*(s: string): seq[int] =
   let L = s.len
   proc compareIndices(j, k: int): int =
     var
@@ -511,8 +511,13 @@ proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
       if currentK == L:
         currentK = 0
     return 0
-  var rotations = toSeq(0 ..< s.len)
-  rotations.sort(compareIndices)
+  result = toSeq(0 ..< s.len)
+  result.sort(compareIndices)
+
+proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
+  let
+    L = s.len
+    rotations = suffixArray(s)
   result.s = newString(L)
   for i in 0 ..< L:
     var j = rotations[i] + L - 1

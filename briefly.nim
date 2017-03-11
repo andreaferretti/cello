@@ -495,28 +495,32 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) =
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
 
-proc compareRotatedStrings(r, s: RotatedString): int =
-  let L = min(r.underlying.len, s.underlying.len)
-  for i in 0 ..< L:
-    if r[i] < s[i]: return -1
-    elif s[i] < r[i]: return 1
-  if r.underlying.len < s.underlying.len: return -1
-  elif s.underlying.len < r.underlying.len: return 1
-  return 0
-
 proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
   let L = s.len
-  var
-    t = s
-    rotations = toSeq(0 ..< s.len).mapIt(t.rotate(it))
-  rotations.sort(compareRotatedStrings)
+  proc compareIndices(j, k: int): int =
+    var
+      currentJ = j
+      currentK = k
+    for i in 0 ..< L:
+      if s[currentJ] < s[currentK]: return -1
+      elif s[currentJ] > s[currentK]: return 1
+      currentJ += 1
+      currentK += 1
+      if currentJ == L:
+        currentJ = 0
+      if currentK == L:
+        currentK = 0
+    return 0
+  var rotations = toSeq(0 ..< s.len)
+  rotations.sort(compareIndices)
   result.s = newString(L)
   for i in 0 ..< L:
-    result.s[i] = rotations[i][L - 1]
-  for i in 0 ..< L:
-    if rotations[i].shift == 0:
+    var j = rotations[i] + L - 1
+    if j >= L:
+      j -= L
+    result.s[i] = s[j]
+    if rotations[i] == 0:
       result.i = i
-      break
 
 proc inverseBurrowsWheeler*(s: string, i: int): string =
   let alphabet = uniq(s).sorted(system.cmp[char])

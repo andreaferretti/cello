@@ -24,13 +24,17 @@ task test, "run briefly tests":
 task tests, "run briefly tests":
   setCommand "test"
 
-task benchmarkRRR, "run briefly benchmarks":
+task benchmarkRRR, "benchmark RRR bit array":
   withDir "benchmarks":
     exec "nimble benchmarkRRR"
 
-task benchmarkWT, "run briefly benchmarks":
+task benchmarkWT, "benchmark wavelet tree":
   withDir "benchmarks":
     exec "nimble benchmarkWT"
+
+task benchmarkBW, "benchmark Burrows-Wheeler transform":
+  withDir "benchmarks":
+    exec "nimble benchmarkBW"
 
 task spaceRRR, "run briefly space benchmarks":
   --define: release

@@ -1,4 +1,4 @@
-import bitopts, math, sequtils, strutils, algorithm
+import bitopts, math, sequtils, strutils, algorithm, tables
 
 proc rank*[T](s: set[T], i: T): int =
   for j in 0 ..< i:
@@ -517,3 +517,29 @@ proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
     if rotations[i].shift == 0:
       result.i = i
       break
+
+proc inverseBurrowsWheeler*(s: string, i: int): string =
+  let alphabet = uniq(s).sorted(system.cmp[char])
+  var
+    eqPartials = newTable[char, int]()
+    ltCounters = newTable[char, int]()
+    eqCounters = newSeqOfCap[int](s.len)
+  for c in s:
+    if eqPartials.hasKey(c):
+      eqCounters.add(eqPartials[c])
+      eqPartials[c] += 1
+    else:
+      eqCounters.add(0)
+      eqPartials[c] = 1
+  var total = 0
+  for c in alphabet:
+    ltCounters[c] = total
+    total += eqPartials[c]
+  result = newString(s.len)
+  var
+    currentChar = s[i]
+    currentIndex = i
+  for j in countdown(s.high, 0):
+    result[j] = currentChar
+    currentIndex = eqCounters[currentIndex] + ltCounters[currentChar]
+    currentChar = s[currentIndex]

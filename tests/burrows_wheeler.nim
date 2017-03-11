@@ -3,6 +3,10 @@ include utils
 
 
 suite "Burrows-Wheeler transform":
+  test "computing the suffix array":
+    let x = "this is a test."
+
+    check suffixArray(x) == @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
   test "direct transform":
     let x = "this is a test."
 

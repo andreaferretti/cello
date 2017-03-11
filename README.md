@@ -182,3 +182,27 @@ t[18] = e
 echo s # The quick brown fox jumps around the lezy dog
 echo t # jumps around the lezy dogThe quick brown fox
 ```
+
+### Burrows-Wheeler transform
+
+The Burrows-Wheeler transform of a string is a string having the same length,
+together with a distinguished index. The exact description of the algorithm
+is a outside the purpose of this documentation, but we recall the following
+two facts:
+
+* the Burrows-Wheeler transform can be inverted
+* whenever a character is a good predictor for the next one (in the original
+  string), the string in the Burrows-Wheeler transform tends to have many
+  repeated characters, which allows to compress it by run-length encoding.
+
+An example of usage is this:
+
+```nim
+let
+  s = "The quick brown fox jumps around the lazy dog"
+  (t, i) = burrowsWheeler(s)
+  u = inverseBurrowsWheeler(t, i)
+
+echo t # skynxeedg l in hh otTu c uwudrrfm abp qjoooza
+echo u # The quick brown fox jumps around the lazy dog
+```

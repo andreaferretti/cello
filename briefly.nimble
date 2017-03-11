@@ -36,16 +36,10 @@ task benchmarkBW, "benchmark Burrows-Wheeler transform":
   withDir "benchmarks":
     exec "nimble benchmarkBW"
 
-task spaceRRR, "run briefly space benchmarks":
-  --define: release
-  --define: nimTypeNames
-  --path: "."
-  --run
-  setCommand "c", "benchmarks/space.nim"
+task spaceRRR, "benchmark the space of RRR bit array":
+  withDir "benchmarks":
+    exec "nimble spaceRRR"
 
-task spaceWT, "run briefly space benchmarks":
-  --define: release
-  --define: nimTypeNames
-  --path: "."
-  --run
-  setCommand "c", "benchmarks/wavelet_tree_space.nim"
+task spaceWT, "benchmark the space of wavelet tree":
+  withDir "benchmarks":
+    exec "nimble spaceWT"

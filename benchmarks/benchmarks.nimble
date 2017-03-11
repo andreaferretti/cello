@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Andrea Ferretti"
-description   = "Succinct data structures"
+description   = "Succinct data structures benchmarks"
 license       = "Apache2"
 
 # Dependencies
@@ -26,3 +26,17 @@ task benchmarkBW, "benchmark Burrows-Wheeler transform":
   --path: ".."
   --run
   setCommand "c", "burrows_wheeler.nim"
+
+task spaceRRR, "benchmark the space of RRR bit array":
+  --define: release
+  --define: nimTypeNames
+  --path: ".."
+  --run
+  setCommand "c", "rrr_space.nim"
+
+task spaceWT, "benchmark the space of wavelet tree":
+  --define: release
+  --define: nimTypeNames
+  --path: ".."
+  --run
+  setCommand "c", "wavelet_tree_space.nim"

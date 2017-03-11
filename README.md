@@ -107,9 +107,9 @@ echo x.capacity  # 200
 
 ### RRR
 
-The RRR bit vector is the first of our collections that is actually succinct.
-It consists of a bit arrays, plus two int arrays that stores `rank(i)` values
-for various `i`, at different scales.
+The [RRR](http://alexbowe.com/rrr/) bit vector is the first of our collections
+that is actually succinct. It consists of a bit arrays, plus two int arrays
+that stores `rank(i)` values for various `i`, at different scales.
 
 It can be created after a bit array, and allows constant time `rank` and
 logarithmic time `select` and `select0`.
@@ -129,9 +129,9 @@ well as the two auxiliary indices.
 
 ### Wavelet tree
 
-The wavelet tree is a tree constructed in the following way. An input string
-over a finite alphabet is given. The alphabet is split in two parts - the left
-and the right one, call them L and R.
+The [wavelet tree](http://alexbowe.com/wavelet-trees/) is a tree constructed
+in the following way. An input string over a finite alphabet is given. The
+alphabet is split in two parts - the left and the right one, call them L and R.
 
 For each character of the string, we use a 1 bit to denote that the character
 belongs to R and a 0 bit to denote that it belongs to L. In this way, we
@@ -185,10 +185,10 @@ echo t # jumps around the lezy dogThe quick brown fox
 
 ### Burrows-Wheeler transform
 
-The Burrows-Wheeler transform of a string is a string having the same length,
-together with a distinguished index. The exact description of the algorithm
-is a outside the purpose of this documentation, but we recall the following
-two facts:
+The [Burrows-Wheeler transform](http://michael.dipperstein.com/bwt/) of a string
+is a string having the same length, together with a distinguished index.
+The exact description of the algorithm is a outside the purpose of this
+documentation, but we recall the following two facts:
 
 * the Burrows-Wheeler transform can be inverted
 * whenever a character is a good predictor for the next one (in the original

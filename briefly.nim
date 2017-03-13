@@ -191,7 +191,7 @@ proc capacity*(ints: IntArray): auto = ints.ba.len div ints.size
 proc ints*(k, size: int): IntArray =
   return IntArray(ba: bits(k * size), size: size, length: 0)
 
-proc `[]`*(ints: IntArray, i: int): int =
+proc `[]`*(ints: IntArray, i: int): int {.inline.} =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
   let
@@ -215,7 +215,7 @@ proc `[]`*(ints: IntArray, i: int): int =
       shifted2 = (word2 and mask) shl (L - startOffset)
     return shifted1 or shifted2
 
-proc `[]=`*(ints: var IntArray, i, v: int) =
+proc `[]=`*(ints: var IntArray, i, v: int) {.inline.} =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
   #assert(v < 2 ^ ints.size)
@@ -478,7 +478,7 @@ proc rotate*(s: var string, i: int): RotatedString =
   result = RotatedString(shift: i)
   shallowCopy(result.underlying, s)
 
-proc `[]`*(r: RotatedString, i: int): char =
+proc `[]`*(r: RotatedString, i: int): char {.inline.} =
   let L = r.underlying.len
   assert 0 <= i and i < L
   let s = i + r.shift
@@ -487,7 +487,7 @@ proc `[]`*(r: RotatedString, i: int): char =
   else:
     return r.underlying[s - L]
 
-proc `[]=`*(r: var RotatedString, i: int, c: char) =
+proc `[]=`*(r: var RotatedString, i: int, c: char) {.inline.} =
   let L = r.underlying.len
   assert 0 <= i and i < L
   let s = i + r.shift

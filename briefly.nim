@@ -1,4 +1,4 @@
-import bitopts, math, sequtils, strutils, algorithm, tables
+import bitops, math, sequtils, strutils, algorithm, tables
 
 proc rank*[T](s: set[T], i: T): int =
   for j in 0 ..< i:
@@ -96,7 +96,7 @@ proc select*(t, i: int): int =
   if i > countSetBits(t):
     return 0
   while i1 > 0 and t1 != 0:
-    let s = trailingZeroBits(t1) + 1
+    let s = countTrailingZeroBits(t1) + 1
     t1 = t1 shr s
     result += s
     dec i1

@@ -1,4 +1,4 @@
-import briefly, unittest, random
+import briefly, unittest, random, sequtils
 include utils
 
 
@@ -27,3 +27,9 @@ suite "Burrows-Wheeler transform":
       (s, c) = burrowsWheeler(x)
       y = inverseBurrowsWheeler(s, c)
     check x == y
+  test "direct transform of a seq[char]":
+    let
+      x = sequtils.toSeq("this is a test.".items)
+      (s, c) = burrowsWheeler(x)
+      y = inverseBurrowsWheeler(s, c)
+    check x == sequtils.toSeq(y.items)

@@ -601,3 +601,32 @@ proc search*(index: FMIndex, pattern: AnyString): Positions =
   return Positions(first: s, last: e - 1)
 
 proc toSeq*(p: Positions): seq[int] = sequtils.toSeq(p.first .. p.last)
+
+# An implementation of Boyer-Moore-Horspool string searching.
+proc boyerMooreHorspool*(target: AnyString, query: string, start = 0): int =
+  let
+    m = len(query)
+    n = len(target)
+  if m > n: return -1
+  var skip = newSeq[int](257)
+  for i in 1 .. 256:
+    skip[i] = m
+  for k in 0 .. < (m - 1):
+    skip[query[k].int] = m - k - 1
+  var k = start + m - 1
+  while k < n:
+    var
+      j = m - 1
+      i = k
+    while j >= 0 and target[i] == query[j]:
+      dec(j)
+      dec(i)
+    if j == -1:
+      return i + 1
+    k += skip[target[k].int]
+  return -1
+
+proc `[]`*(s: Spill[char], x: Slice[int]): string =
+  result = newStringOfCap(x.b - x.a + 1)
+  for i in x.a .. x.b:
+    result.add(s[i])

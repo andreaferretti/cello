@@ -9,7 +9,7 @@ skipDirs      = @["tests", "benchmarks"]
 
 # Dependencies
 
-requires "nim >= 0.16.0"
+requires "nim >= 0.16.0", "spills >= 0.1.1"
 
 task test, "run briefly tests":
   --hints: off

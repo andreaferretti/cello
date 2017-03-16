@@ -1,4 +1,7 @@
 import bitops, math, sequtils, strutils, algorithm, tables
+import spills
+
+type AnyString* = string or seq[char] or Spill[char]
 
 proc rank*[T](s: set[T], i: T): int =
   for j in 0 ..< i:
@@ -12,12 +15,12 @@ proc select*[T](s: set[T], i: int): T =
       inc count
     inc result
 
-proc rank*(s: string, c: char, i: int): int =
+proc rank*(s: AnyString, c: char, i: int): int =
   for j in 0 ..< i:
     if s[j] == c:
       inc result
 
-proc select*(s: string, c: char, i: int): int =
+proc select*(s: AnyString, c: char, i: int): int =
   var count = 0
   while count < i:
     if s[result] == c:
@@ -367,7 +370,7 @@ type
   WaveletTreeStats* = object
     data*, index1*, index2*, depth*: int
 
-proc uniq*(content: string or seq[char]): seq[char] =
+proc uniq*(content: AnyString): seq[char] =
   result = @[]
   for x in content:
     if not result.contains(x):
@@ -383,7 +386,7 @@ template split(alphabet: seq[char]): auto =
   let L = high(alphabet) div 2
   (alphabet[0 .. L], alphabet[L+1 .. high(alphabet)])
 
-proc waveletTree*(content: string, alphabet: seq[char]): WaveletTree =
+proc waveletTree*(content: AnyString, alphabet: seq[char]): WaveletTree =
   if alphabet.len == 1:
     return WaveletTree(alphabet: alphabet, len: content.len)
   let (alphaLeft, alphaRight) = split(alphabet)
@@ -403,7 +406,7 @@ proc waveletTree*(content: string, alphabet: seq[char]): WaveletTree =
     data = rrr(b)
   return WaveletTree(alphabet: alphabet, len: content.len, data: ~data, left: ~left, right: ~right)
 
-proc waveletTree*(content: string): WaveletTree =
+proc waveletTree*(content: AnyString): WaveletTree =
   waveletTree(content, uniq(content))
 
 proc rank*(w: WaveletTree, c: char, t: int): auto =
@@ -499,7 +502,7 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) {.inline.} =
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
 
-proc suffixArray*(s: string): IntArray =
+proc suffixArray*(s: AnyString): IntArray =
   let L = s.len
   proc compareIndices(j, k: int): int =
     var
@@ -522,7 +525,7 @@ proc suffixArray*(s: string): IntArray =
     result[i] = r[i]
 
 
-proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
+proc burrowsWheeler*(s: AnyString): tuple[s: string, i: int] =
   let
     L = s.len
     rotations = suffixArray(s)
@@ -535,7 +538,7 @@ proc burrowsWheeler*(s: string): tuple[s: string, i: int] =
     if rotations[i] == 0:
       result.i = i
 
-proc inverseBurrowsWheeler*(s: string, i: int): string =
+proc inverseBurrowsWheeler*(s: AnyString, i: int): string =
   let alphabet = uniq(s).sorted(system.cmp[char])
   var
     eqPartials = newTable[char, int]()
@@ -569,7 +572,7 @@ type
   Positions* = object
     first*, last*: int
 
-proc fmIndex*(s: string): FMIndex =
+proc fmIndex*(s: AnyString): FMIndex =
   let alphabet = uniq(s).sorted(system.cmp[char])
   var
     charCount = newTable[char, int]()
@@ -586,7 +589,7 @@ proc fmIndex*(s: string): FMIndex =
   let (bwt, _) = burrowsWheeler(s)
   return FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len)
 
-proc search*(index: FMIndex, pattern: string): Positions =
+proc search*(index: FMIndex, pattern: AnyString): Positions =
   var
     s = 0
     e = index.length - 1

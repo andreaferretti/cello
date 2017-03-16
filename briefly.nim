@@ -597,7 +597,4 @@ proc search*(index: FMIndex, pattern: string): Positions =
     if s > e: break
   return Positions(first: s, last: e - 1)
 
-proc toSeq*(p: Positions): seq[int] =
-  result = newSeqOfCap[int](p.last - p.first + 1)
-  for i in p.first .. p.last:
-    result.add(i)
+proc toSeq*(p: Positions): seq[int] = sequtils.toSeq(p.first .. p.last)

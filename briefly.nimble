@@ -36,6 +36,10 @@ task benchmarkBW, "benchmark Burrows-Wheeler transform":
   withDir "benchmarks":
     exec "nimble benchmarkBW"
 
+task benchmarkFM, "benchmark FM indices":
+  withDir "benchmarks":
+    exec "nimble benchmarkFM"
+
 task spaceRRR, "benchmark the space of RRR bit array":
   withDir "benchmarks":
     exec "nimble spaceRRR"

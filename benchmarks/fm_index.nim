@@ -44,5 +44,14 @@ proc main() =
 
   echo "We have required ", sw.secs(), " seconds to find ", ops, " patterns."
 
+  sw.start()
+  for i in indices:
+    let
+      pattern = s[i .. (i + patternLen - 1)]
+    discard boyerMooreHorspool(s, pattern)
+  sw.stop()
+
+  echo "We have required ", sw.secs(), " seconds to find ", ops, " patterns with Boyer-Moore."
+
 when isMainModule:
   main()

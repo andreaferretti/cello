@@ -359,11 +359,11 @@ proc select0*(r: RRR, i: int): int =
   return step2 * i2 + select(not r.ba.data[i2], i - s1 - s2)
 
 type
-  WaveletTree* = object
+  WaveletTree* = ref object
     alphabet*: seq[char]
     len*: int
     data*: ref RRR
-    left*, right*: ref WaveletTree
+    left*, right*: WaveletTree
   WaveletTreeStats* = object
     data*, index1*, index2*, depth*: int
 
@@ -383,6 +383,9 @@ template split(alphabet: seq[char]): auto =
   let L = high(alphabet) div 2
   (alphabet[0 .. L], alphabet[L+1 .. high(alphabet)])
 
+when compileOption("threads"):
+  import threadpool
+
 proc waveletTree*(content: string, alphabet: seq[char]): WaveletTree =
   if alphabet.len == 1:
     return WaveletTree(alphabet: alphabet, len: content.len)
@@ -397,11 +400,21 @@ proc waveletTree*(content: string, alphabet: seq[char]): WaveletTree =
     else:
       incl(b, i)
       contentRight.add(c)
-  let
-    left = waveletTree(contentLeft, alphaLeft)
-    right = waveletTree(contentRight, alphaRight)
-    data = rrr(b)
-  return WaveletTree(alphabet: alphabet, len: content.len, data: ~data, left: ~left, right: ~right)
+  when compileOption("threads"):
+    let
+      leftVar = spawn waveletTree(contentLeft, alphaLeft)
+      rightVar = spawn waveletTree(contentRight, alphaRight)
+      data = rrr(b)
+    sync()
+    let
+      left = ^leftVar
+      right = ^rightVar
+  else:
+    let
+      left = waveletTree(contentLeft, alphaLeft)
+      right = waveletTree(contentRight, alphaRight)
+      data = rrr(b)
+  return WaveletTree(alphabet: alphabet, len: content.len, data: ~data, left: left, right: right)
 
 proc waveletTree*(content: string): WaveletTree =
   waveletTree(content, uniq(content))
@@ -417,10 +430,10 @@ proc rank*(w: WaveletTree, c: char, t: int): auto =
   let (alphaLeft, alphaRight) = split(w.alphabet)
   if alphaLeft.contains(c):
     let r = t - w.data[].rank(t)
-    return w.left[].rank(c, r)
+    return w.left.rank(c, r)
   elif alphaRight.contains(c):
     let r = w.data[].rank(t)
-    return w.right[].rank(c, r)
+    return w.right.rank(c, r)
 
 proc `[]`*(w: WaveletTree, t: int): char =
   if w.alphabet.len == 1:
@@ -428,10 +441,10 @@ proc `[]`*(w: WaveletTree, t: int): char =
   let bit = w.data.ba[t]
   if bit:
     let r = w.data[].rank(t)
-    return w.right[][r]
+    return w.right[r]
   else:
     let r = t - w.data[].rank(t)
-    return w.left[][r]
+    return w.left[r]
 
 proc select*(w: WaveletTree, c: char, t: int): auto =
   if not w.alphabet.contains(c):
@@ -443,12 +456,12 @@ proc select*(w: WaveletTree, c: char, t: int): auto =
       return t
   let (alphaLeft, alphaRight) = split(w.alphabet)
   if alphaLeft.contains(c):
-    let r = w.left[].select(c, t)
+    let r = w.left.select(c, t)
     if r == -1:
       return -1
     return w.data[].select0(r)
   elif alphaRight.contains(c):
-    let r = w.right[].select(c, t)
+    let r = w.right.select(c, t)
     if r == -1:
       return -1
     return w.data[].select(r)
@@ -457,8 +470,8 @@ proc stats*(w: WaveletTree): WaveletTreeStats =
   if w.alphabet.len == 1:
     return WaveletTreeStats(depth: 1)
   let
-    left = stats(w.left[])
-    right = stats(w.right[])
+    left = stats(w.left)
+    right = stats(w.right)
     s = stats(w.data[])
   return WaveletTreeStats(
     depth: max(left.depth, right.depth) + 1,

@@ -127,6 +127,8 @@ To convince oneself that the structure really is succinct, `stats(rrr)` returns
 a data structures that shows the space taken (in bits) by the bit array, as
 well as the two auxiliary indices.
 
+[Reference](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.538.8528&rep=rep1&type=pdf)
+
 ### Wavelet tree
 
 The [wavelet tree](http://alexbowe.com/wavelet-trees/) is a tree constructed
@@ -156,6 +158,8 @@ echo x.rank('A', 20)   # 7
 echo x.select('A', 7)  # 20
 echo x[12]             # 'G'
 ```
+
+[Reference](http://people.unipmn.it/manzini/papers/icalp06.pdf)
 
 ### Rotated strings
 
@@ -229,6 +233,8 @@ echo t # skynxeedg l in hh otTu c uwudrrfm abp qjoooza
 echo u # The quick brown fox jumps around the lazy dog
 ```
 
+[Reference](http://www.hpl.hp.com/techreports/Compaq-DEC/SRC-RR-124.pdf)
+
 ### FM indices
 
 An [FM index](http://alexbowe.com/fm-index/) for a string puts together
@@ -263,3 +269,5 @@ for j in positions.first .. positions.last:
 # ississippim
 
 ```
+
+[Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)

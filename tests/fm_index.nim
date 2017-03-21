@@ -51,8 +51,6 @@ suite "FM index":
 
     check(realPositions.len > 0)
 
-    # for j in positions.first .. positions.last:
-    #   let
-    #     i = sa[j]
-    #     y = $(x.rotate(i))
-    #   check y.startsWith(pattern)
+    for p in realPositions:
+      for i in 0 .. pattern.high:
+        check(x[p + i] == pattern[i])

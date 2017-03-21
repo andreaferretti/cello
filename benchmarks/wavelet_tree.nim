@@ -46,5 +46,13 @@ proc main() =
 
   echo "We have required ", sw.secs(), " seconds to compute ", ops, " selects."
 
+  sw.start()
+  for x in indicesRank:
+    let (i, _) = x
+    discard wt[i]
+  sw.stop()
+
+  echo "We have required ", sw.secs(), " seconds to compute ", ops, " accesses."
+
 when isMainModule:
   main()

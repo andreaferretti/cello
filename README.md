@@ -271,3 +271,10 @@ for j in positions.first .. positions.last:
 ```
 
 [Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)
+
+## TODO
+
+* Construct wavelet trees in threads
+* Make use of SIMD operations to improve performance
+* Allow data structures to work on memory-mapped files
+* Implement assembly on top of FM indices following [this thesis](ftp://ftp.sanger.ac.uk/pub/resources/theses/js18/thesis.pdf)

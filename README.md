@@ -270,6 +270,22 @@ for j in positions.first .. positions.last:
 
 ```
 
+### Boyer-Moore-Horspool search
+
+To make a comparison with naive string searching (without using indices),
+an implementation of Boyer-Moore-Horspool string searching is provided.
+
+Is it meant to be used as follows:
+
+```nim
+let
+  x = "mississippi"
+  pattern = "iss"
+
+echo boyerMooreHorspool(x, pattern) # 1 (ississippi)
+echo boyerMooreHorspool(x, pattern, start = 2)  # 4 (issippi)
+```
+
 [Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)
 
 ## TODO

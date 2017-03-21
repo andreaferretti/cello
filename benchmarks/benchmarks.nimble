@@ -7,7 +7,7 @@ license       = "Apache2"
 
 # Dependencies
 
-requires "nim >= 0.16.0", "stopwatch 3.2", "spills >= 0.1.1"
+requires "nim >= 0.16.0", "stopwatch >= 3.2", "spills >= 0.1.1"
 
 task benchmarkRRR, "benchmark RRR bit array":
   --define: release

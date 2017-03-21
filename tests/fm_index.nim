@@ -1,4 +1,4 @@
-import briefly, unittest, random, strutils, sequtils
+import briefly, unittest, random, strutils, sequtils, spills
 include utils
 
 
@@ -36,3 +36,23 @@ suite "FM index":
         i = sa[j]
         y = $(x.rotate(i))
       check y.startsWith(pattern)
+
+  test "backward search on a memory-mapped string":
+    initSpills()
+    var x = spill[char]("briefly.nim", hasHeader = false)
+    defer:
+      x.close()
+    let
+      pattern = "fmIndex"
+      fm = fmIndex(x)
+      sa = suffixArray(x)
+      positions = fm.search(pattern)
+      realPositions = toSeq(positions).mapIt(sa[it])
+
+    check(realPositions.len > 0)
+
+    # for j in positions.first .. positions.last:
+    #   let
+    #     i = sa[j]
+    #     y = $(x.rotate(i))
+    #   check y.startsWith(pattern)

@@ -27,7 +27,7 @@ proc select*(s: AnyString, c: char, i: int): int =
       inc count
     inc result
 
-type BitArray* = object
+type BitArray* = ref object
   data: seq[int]
 
 proc bits*(k: int): BitArray =
@@ -518,11 +518,8 @@ proc suffixArray*(s: AnyString): IntArray =
   for i in 0 ..< s.len:
     result[i] = r[i]
 
-
-proc burrowsWheeler*(s: AnyString): tuple[s: string, i: int] =
-  let
-    L = s.len
-    rotations = suffixArray(s)
+proc burrowsWheeler*(s: AnyString, rotations: IntArray): tuple[s: string, i: int] =
+  let L = s.len
   result.s = newString(L)
   for i in 0 ..< L:
     var j = rotations[i] + L - 1
@@ -531,6 +528,9 @@ proc burrowsWheeler*(s: AnyString): tuple[s: string, i: int] =
     result.s[i] = s[j]
     if rotations[i] == 0:
       result.i = i
+
+proc burrowsWheeler*(s: AnyString): tuple[s: string, i: int] =
+  burrowsWheeler(s, suffixArray(s))
 
 proc inverseBurrowsWheeler*(s: AnyString, i: int): string =
   let alphabet = uniq(s).sorted(system.cmp[char])
@@ -566,8 +566,10 @@ type
   Positions* = object
     first*, last*: int
 
-proc fmIndex*(s: AnyString): FMIndex =
-  let alphabet = uniq(s).sorted(system.cmp[char])
+proc fmIndexWithSuffixArray*(s: AnyString): tuple[fm: FMIndex, sa: IntArray] =
+  let
+    alphabet = uniq(s).sorted(system.cmp[char])
+    sa = suffixArray(s)
   var
     charCount = newTable[char, int]()
     lookup = newTable[char, int]()
@@ -580,8 +582,10 @@ proc fmIndex*(s: AnyString): FMIndex =
   for c in alphabet:
     lookup[c] = total
     total += charCount[c]
-  let (bwt, _) = burrowsWheeler(s)
-  return FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len)
+  let (bwt, _) = burrowsWheeler(s, sa)
+  return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len), sa)
+
+proc fmIndex*(s: AnyString): FMIndex = fmIndexWithSuffixArray(s).fm
 
 proc search*(index: FMIndex, pattern: AnyString): Positions =
   var

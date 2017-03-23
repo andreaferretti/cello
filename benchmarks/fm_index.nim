@@ -23,16 +23,10 @@ proc main() =
   echo "Initialization done"
 
   sw.start()
-  let fm = fmIndex(s)
+  let (fm, sa) = fmIndexWithSuffixArray(s)
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to prepare the FM index for a ", width, " long string."
-
-  sw.start()
-  let sa = suffixArray(s)
-  sw.stop()
-
-  echo "We have required ", sw.secs(), " seconds to prepare the suffix array for a ", width, " long string."
 
   sw.start()
   for i in indices:

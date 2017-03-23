@@ -256,6 +256,7 @@ let
   x = "mississippi"
   pattern = "iss"
   fm = fmIndex(x)
+  sa = suffixArray(x)
   positions = fm.search(pattern)
 
 echo positions.first # 2
@@ -267,7 +268,16 @@ for j in positions.first .. positions.last:
 
 # issippimiss
 # ississippim
+```
 
+For economy, the FM index itself does not include the suffix array, as some
+applications do not require the latter. Still, it is quite frequent to need
+both; since computing the FM index requires the suffix array in any case, and
+computing the suffix array is quite costly, there is a way to get both at the
+same time. In the above example, we could write as well
+
+```nim
+let (fm, sa) = fmIndexWithSuffixArray(x)
 ```
 
 ### Boyer-Moore-Horspool search

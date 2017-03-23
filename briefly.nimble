@@ -4,7 +4,6 @@ version       = "0.1.0"
 author        = "Andrea Ferretti"
 description   = "Succinct data structures"
 license       = "Apache2"
-skipFiles     = @["bitopts.nim"] # To be removed when it lands in devel
 skipDirs      = @["tests", "benchmarks"]
 
 # Dependencies

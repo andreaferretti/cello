@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
-  ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./burrows_wheeler,
-  ./fm_index, ./boyer_moore
+import ./burrows_wheeler
+# import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
+#   ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./burrows_wheeler,
+#   ./fm_index, ./boyer_moore

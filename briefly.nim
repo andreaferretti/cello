@@ -512,6 +512,159 @@ proc `[]=`*(r: var RotatedString, i: int, c: char) {.inline.} =
 proc `$`*(r: RotatedString): string =
   r.underlying[r.shift .. r.underlying.high] & r.underlying[0 ..< r.shift]
 
+####################################################
+
+iterator samples(top: int): int =
+  var i = 1
+  while i < top - 3:
+    yield i
+    i += 3
+  i = 2
+  while i < top - 3:
+    yield i
+    i += 3
+
+proc radixPass(a: seq[int], b: var seq[int], reference: seq[int], max: int, offset: int) =
+  var
+    bucketSizes = newSeq[int](max + 1)
+    bucketStart = newSeq[int](max + 1)
+  for i in a:
+    let digit = reference[i + offset]
+    inc bucketSizes[digit]
+  var total = 0
+  for i in 0 .. max:
+    bucketStart[i] = total
+    total += bucketSizes[i]
+  for c in a:
+    let
+      digit = reference[c + offset]
+      position = bucketStart[digit]
+    inc bucketStart[digit]
+    b[position] = c
+
+proc dc3(xs: seq[int]): seq[int] =
+  var
+    sampleIndices = sequtils.toSeq(samples(xs.len))
+    scratchIndices = sampleIndices
+  let
+    L = sampleIndices.len
+    L2 = (L+1) div 2
+    m = xs.max
+  radixPass(sampleIndices, scratchIndices, xs, max = m, offset = 2)
+  radixPass(scratchIndices, sampleIndices, xs, max = m, offset = 1)
+  radixPass(sampleIndices, scratchIndices, xs, max = m, offset = 0)
+  # `scratchIndices` now contains the lexicographic order of
+  # triplets starting from indices in the sample set C = { x | x mod 3 != 0 }
+  var
+    lastTriplet = [-1, -1, -1]
+    count = 0
+    R12 = newSeq[int](L)
+    SA12 = newSeq[int](L)
+  for i, c in scratchIndices:
+    let triplet = [xs[c], xs[c+1], xs[c+2]]
+    if triplet != lastTriplet:
+      lastTriplet = triplet
+      count += 1
+    let
+      rem = c mod 3
+      quote = c div 3
+      position = quote + (if rem == 1: 0 else: L2)
+    R12[position] = count
+  if count < sampleIndices.len:
+    # There was a repeated triple; need to sort again
+    # the suffixes of R12 recursively
+    R12.add(0)
+    R12.add(0)
+    R12.add(0)
+    SA12 = dc3(R12)
+  else:
+    # Triples were unique; we can reconstruct the suffix
+    # array from R12, which is sorted
+    for i, c in R12:
+      SA12[c - 1] = i
+  var
+    R0 = newSeq[int](xs.len div 3)
+    SA0 = newSeq[int](xs.len div 3)
+    j = 0
+  for c in SA12:
+    if c < L2: # only consider the first half of indices
+      R0[j] = 3 * c
+      inc j
+  # R0 now contains the indices sorted by SA12[i + 1]
+  # With another radix pass the will now be sorted by the pair
+  # (character, following suffix)
+  radixPass(R0, SA0, xs, max = xs.max, offset = 0)
+  # we can now merge the set C together with its complement
+  var k, k0, k12 = 0
+  result = newSeq[int](xs.len - 3)
+
+  template pos12(i: int): int =
+    if i mod 3 == 1: i div 3
+    else: i div 3 + L2
+
+  template compareB1(i, j: int): bool =
+    if xs[i] < xs[j]: true
+    elif xs[j] < xs[i]: false
+    else: R12[pos12(i + 1)] < R12[pos12(j + 1)]
+
+  template compareB2(i, j: int): bool =
+    if xs[i] < xs[j]: true
+    elif xs[j] < xs[i]: false
+    else: compareB1(i + 1, j + 1)
+
+  while k0 < SA0.len and k12 < SA12.len:
+    let
+      x0 = SA0[k0] # next index from B0
+      i12 = SA12[k12] # this is an index in R12, but we have to map it back to an index in B12
+      b1case = i12 < L2
+      x12 = if b1case: 1 + 3 * i12 else: 2 + 3 * (i12 - L2) # next index from B12
+      nextInB0 = if b1case: compareB1(x0, x12) else: compareB2(x0, x12)
+    if nextInB0:
+      result[k] = x0
+      inc k0
+    else:
+      result[k] = x12
+      inc k12
+    inc k
+  # Add remaining indices from B0
+  if k0 < SA0.len:
+    while k < result.len:
+      result[k] = SA0[k0]
+      inc k
+      inc k0
+  # Add remaining indices from B12
+  if k12 < SA12.len:
+    while k < result.len:
+      let
+        i12 = SA12[k12]
+        b1case = i12 < L2
+        x12 = if b1case: 1 + 3 * i12 else: 2 + 3 * (i12 - L2) # next index from B12
+      result[k] = x12
+      inc k
+      inc k12
+
+proc uniq(content: string): seq[char] =
+  result = @[]
+  for x in content:
+    if not result.contains(x):
+      result.add(x)
+
+proc enumerate(s: string): seq[int] =
+  let alphabet = uniq(s).sorted(system.cmp[char])
+  result = newSeq[int](s.len)
+  for i, c in s:
+    result[i] = alphabet.find(c) + 1
+  result.add(0)
+  result.add(0)
+  result.add(0)
+
+proc suffixArray*(s: string): IntArray =
+  ints(dc3(enumerate(s)))
+
+
+
+####################################################
+
 proc suffixArray*(s: AnyString): IntArray =
   let L = s.len
   proc compareIndices(j, k: int): int =

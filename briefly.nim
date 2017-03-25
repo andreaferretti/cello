@@ -207,6 +207,8 @@ proc capacity*(ints: IntArray): auto = ints.ba.len div ints.size
 proc ints*(k, size: int): IntArray =
   return IntArray(ba: bits(k * size), size: size, length: 0)
 
+proc maxBits(n: int): int = log2(n.float).int + 1
+
 proc `[]`*(ints: IntArray, i: int): int {.inline.} =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
@@ -262,6 +264,11 @@ proc `[]=`*(ints: var IntArray, i, v: int) {.inline.} =
     ints.ba.data[startByte + 1] = newWord2
   ints.length = max(ints.length, i + 1)
 
+proc ints*(xs: seq[int]): IntArray =
+  result = ints(xs.len, maxBits(xs.max))
+  for i, x in xs:
+    result[i] = x
+
 proc add*(ints: var IntArray, v: int) =
   ints[ints.length] = v
 
@@ -285,8 +292,6 @@ const
   stepWidth = 64
   step1 = sizeof(int) * 8 * stepWidth
   step2 = sizeof(int) * 8
-
-proc maxBits(n: int): int = log2(n.float).int + 1
 
 proc rrr*(ba: BitArray): RRR =
   let L = ba.len
@@ -345,8 +350,6 @@ proc binarySearch0(s: IntArray, value, min, max, width: int): (int, int) =
     else:
       aMax = middle
   return (aMin, (aMin - min) * width - s[aMin])
-
-import future
 
 proc select*(r: RRR, i: int): int =
   let

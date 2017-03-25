@@ -41,3 +41,9 @@ suite "int arrays":
     # is 64 * 15 == 960, and
     # 960 div 9 == 106
     check(y.capacity == 106)
+  test "transforming to sequence and back":
+    var x = newSeq[int](100)
+    for i in 0 .. 99:
+      x[i] = random(512)
+    let y = ints(x)
+    check x == y.toIntSeq

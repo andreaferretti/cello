@@ -514,13 +514,17 @@ proc `$`*(r: RotatedString): string =
 
 ####################################################
 
+const padding = 2
+
+template divup(a, b: int): int = a div b + (if a mod b == 0: 0 else: 1)
+
 iterator samples(top: int): int =
   var i = 1
-  while i < top - 3:
+  while i < top - padding:
     yield i
     i += 3
   i = 2
-  while i < top - 3:
+  while i < top - padding:
     yield i
     i += 3
 
@@ -573,10 +577,12 @@ proc dc3(xs: seq[int]): seq[int] =
   if count < sampleIndices.len:
     # There was a repeated triple; need to sort again
     # the suffixes of R12 recursively
-    R12.add(0)
-    R12.add(0)
-    R12.add(0)
+    for _ in 1 .. padding:
+      R12.add(0)
     SA12 = dc3(R12)
+    # Reorder R12 accordingly
+    for i, c in SA12:
+      R12[c] = i + 1
   else:
     # Triples were unique; we can reconstruct the suffix
     # array from R12, which is sorted
@@ -586,6 +592,11 @@ proc dc3(xs: seq[int]): seq[int] =
     R0 = newSeq[int](xs.len div 3)
     SA0 = newSeq[int](xs.len div 3)
     j = 0
+  # if the last index in `xs` is = 1 mod 3, insert
+  # that in head position
+  if xs.len mod 3 == 0:
+    R0[j] = xs.len - 3
+    inc j
   for c in SA12:
     if c < L2: # only consider the first half of indices
       R0[j] = 3 * c
@@ -596,7 +607,7 @@ proc dc3(xs: seq[int]): seq[int] =
   radixPass(R0, SA0, xs, max = xs.max, offset = 0)
   # we can now merge the set C together with its complement
   var k, k0, k12 = 0
-  result = newSeq[int](xs.len - 3)
+  result = newSeq[int](SA0.len + SA12.len)
 
   template pos12(i: int): int =
     if i mod 3 == 1: i div 3
@@ -616,7 +627,7 @@ proc dc3(xs: seq[int]): seq[int] =
     let
       x0 = SA0[k0] # next index from B0
       i12 = SA12[k12] # this is an index in R12, but we have to map it back to an index in B12
-      b1case = i12 < L2
+      b1case = i12 < L2 # whether the next index in B12 comes from B1
       x12 = if b1case: 1 + 3 * i12 else: 2 + 3 * (i12 - L2) # next index from B12
       nextInB0 = if b1case: compareB1(x0, x12) else: compareB2(x0, x12)
     if nextInB0:
@@ -654,9 +665,8 @@ proc enumerate(s: string): seq[int] =
   result = newSeq[int](s.len)
   for i, c in s:
     result[i] = alphabet.find(c) + 1
-  result.add(0)
-  result.add(0)
-  result.add(0)
+  for _ in 1 .. padding:
+    result.add(0)
 
 proc suffixArray*(s: string): IntArray =
   ints(dc3(enumerate(s)))

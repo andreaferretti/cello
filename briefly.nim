@@ -769,12 +769,13 @@ proc fmIndexWithSuffixArray*(s: AnyString): tuple[fm: FMIndex, sa: IntArray] =
       charCount[c] += 1
     else:
       charCount[c] = 1
-  var total = 0
+  var total = 1
+  lookup[specialChar] = 0
   for c in alphabet:
     lookup[c] = total
     total += charCount[c]
   let bwt = burrowsWheeler(s, sa)
-  return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len), sa)
+  return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: bwt.len), sa)
 
 proc fmIndex*(s: AnyString): FMIndex = fmIndexWithSuffixArray(s).fm
 
@@ -787,7 +788,7 @@ proc search*(index: FMIndex, pattern: AnyString): Positions =
     s = index.lookup[c] + index.bwt.rank(c, s)
     e = index.lookup[c] + index.bwt.rank(c, e)
     if s > e: break
-  return Positions(first: s, last: e - 1)
+  return Positions(first: s - 1, last: e - 2)
 
 proc toSeq*(p: Positions): seq[int] = sequtils.toSeq(p.first .. p.last)
 

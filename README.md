@@ -210,6 +210,9 @@ suffixes of a string are a quite special collection to produce more efficient
 algorithms. Other than the sort-based one, we offer the
 [DC3 algorithm](http://spencer-carroll.com/the-dc3-algorithm-made-simple/).
 
+Notice that at the moment DC3 is not really optimized and may be neither
+space nor time efficient.
+
 To use an alternative algorithm, just pass an additional parameter, of type
 
 ```nim

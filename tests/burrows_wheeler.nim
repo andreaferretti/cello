@@ -16,43 +16,14 @@ include utils
 
 
 suite "Burrows-Wheeler transform":
-  test "computing the suffix array":
-    let
-      x = "this is a test."
-      s = suffixArray(x)
-      t = @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
-
-    for i in t.low .. t.high:
-      check s[i] == t[i]
-  test "computing the suffix array again":
-    let
-      x = "ACTGTAT"
-      s = suffixArray(x)
-      t = @[0, 5, 1, 3, 6, 4, 2]
-
-    for i in t.low .. t.high:
-      check s[i] == t[i]
-  test "computing the suffix array with dc3":
-    let
-      x = "TAATT"
-      s = suffixArray(x, SuffixArrayAlgorithm.Sort)
-      s1 = suffixArray(x, SuffixArrayAlgorithm.DC3)
-
-    for i in 0 ..< x.len:
-      check s[i] == s1[i]
-  test "computing the suffix array with dc3 for a random string":
-    let
-      x = randomString(1000, ['A', 'C', 'T', 'G'])
-      s = suffixArray(x, SuffixArrayAlgorithm.Sort)
-      s1 = suffixArray(x, SuffixArrayAlgorithm.DC3)
-
-    for i in 0 ..< x.len:
-      check s[i] == s1[i]
-
   test "direct transform":
     let x = "this is a test."
 
     check burrowsWheeler(x) == ".ssat tt hiies \0"
+  test "direct transform with DC3":
+    let x = "this is a test."
+
+    check burrowsWheeler(x, SuffixArrayAlgorithm.DC3) == ".ssat tt hiies \0"
   test "inverse transform":
     let
       x = "this is a test."

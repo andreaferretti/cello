@@ -716,9 +716,8 @@ proc burrowsWheeler*(s: AnyString, rotations: IntArray): string =
     else:
       result[i] = s[j - 1]
 
-proc burrowsWheeler*(s: AnyString): string =
-  burrowsWheeler(s, suffixArray(s))
-
+proc burrowsWheeler*(s: AnyString, algorithm = SuffixArrayAlgorithm.Sort): string =
+  burrowsWheeler(s, suffixArray(s, algorithm))
 
 proc inverseBurrowsWheeler*(s: AnyString): string =
   let alphabet = uniq(s).sorted(system.cmp[char])
@@ -755,10 +754,10 @@ type
   Positions* = object
     first*, last*: int
 
-proc fmIndexWithSuffixArray*(s: AnyString): tuple[fm: FMIndex, sa: IntArray] =
+proc fmIndexWithSuffixArray*(s: AnyString,  algorithm = SuffixArrayAlgorithm.Sort): tuple[fm: FMIndex, sa: IntArray] =
   let
     alphabet = uniq(s).sorted(system.cmp[char])
-    sa = suffixArray(s)
+    sa = suffixArray(s, algorithm)
   var
     charCount = newTable[char, int]()
     lookup = newTable[char, int]()
@@ -775,7 +774,8 @@ proc fmIndexWithSuffixArray*(s: AnyString): tuple[fm: FMIndex, sa: IntArray] =
   let bwt = burrowsWheeler(s, sa)
   return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: bwt.len), sa)
 
-proc fmIndex*(s: AnyString): FMIndex = fmIndexWithSuffixArray(s).fm
+proc fmIndex*(s: AnyString, algorithm = SuffixArrayAlgorithm.Sort): FMIndex =
+  fmIndexWithSuffixArray(s, algorithm).fm
 
 proc search*(index: FMIndex, pattern: AnyString): Positions =
   var

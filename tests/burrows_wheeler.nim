@@ -24,25 +24,65 @@ suite "Burrows-Wheeler transform":
 
     for i in t.low .. t.high:
       check s[i] == t[i]
+  test "computing the suffix array again":
+    let
+      x = "ACTGTAT"
+      s = suffixArray(x)
+      t = @[0, 5, 1, 3, 6, 4, 2]
+
+    for i in t.low .. t.high:
+      check s[i] == t[i]
+  # test "computing the suffix array with dc3":
+  #   let
+  #     x = "TAATT"
+  #     s = suffixArray(x)
+  #     s1 = suffixArray1(x)
+  #
+  #   echo s.toIntSeq
+  #   echo s1.toIntSeq
+  #
+  #   for i in 0 ..< x.len:
+  #     check s[i] == s1[i]
+  # test "computing the suffix array with dc3":
+  #   var
+  #     k = 2
+  #     matchOk = true
+  #     x = ""
+  #   while matchOk and k < 10000:
+  #     x = randomString(k, ['A', 'C', 'T', 'G'])
+  #     echo x
+  #     let
+  #       s = suffixArray(x)
+  #       s1 = suffixArray1(x)
+  #
+  #     for i in 0 ..< k:
+  #       if s[i] != s1[i]:
+  #         matchOk = false
+  #
+  #     k += 1
+  #
+  #   echo k
+  #   echo x
+
   test "direct transform":
     let x = "this is a test."
 
-    check burrowsWheeler(x) == ("ssat tt hiies .", 14)
+    check burrowsWheeler(x) == ".ssat tt hiies \0"
   test "inverse transform":
     let
       x = "this is a test."
-      (s, c) = burrowsWheeler(x)
-      y = inverseBurrowsWheeler(s, c)
+      s = burrowsWheeler(x)
+      y = inverseBurrowsWheeler(s)
     check x == y
   test "inverse transform of a random string":
     let
-      x = randomString(1000, ['A', 'C', 'G', 'T'])
-      (s, c) = burrowsWheeler(x)
-      y = inverseBurrowsWheeler(s, c)
+      x = randomString(250, ['A', 'C', 'G', 'T'])
+      s = burrowsWheeler(x)
+      y = inverseBurrowsWheeler(s)
     check x == y
   test "direct transform of a seq[char]":
     let
       x = sequtils.toSeq("this is a test.".items)
-      (s, c) = burrowsWheeler(x)
-      y = inverseBurrowsWheeler(s, c)
+      s = burrowsWheeler(x)
+      y = inverseBurrowsWheeler(s)
     check x == sequtils.toSeq(y.items)

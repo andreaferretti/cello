@@ -609,6 +609,11 @@ proc dc3(xs: seq[int]): seq[int] =
   var k, k0, k12 = 0
   result = newSeq[int](SA0.len + SA12.len)
 
+  # Pad both partial suffix arrays to allow
+  # comparison after their end
+  R0.add(0)
+  R12.add(0)
+
   template pos12(i: int): int =
     if i mod 3 == 1: i div 3
     else: i div 3 + L2
@@ -668,7 +673,7 @@ proc enumerate(s: string): seq[int] =
   for _ in 1 .. padding:
     result.add(0)
 
-proc suffixArray*(s: string): IntArray =
+proc suffixArray1*(s: string): IntArray =
   ints(dc3(enumerate(s)))
 
 
@@ -687,9 +692,11 @@ proc suffixArray*(s: AnyString): IntArray =
       currentJ += 1
       currentK += 1
       if currentJ == L:
-        currentJ = 0
+        return -1
+        # currentJ = 0
       if currentK == L:
-        currentK = 0
+        return 1
+        # currentK = 0
     return 0
   var r = toSeq(0 ..< s.len)
   r.sort(compareIndices)
@@ -697,27 +704,35 @@ proc suffixArray*(s: AnyString): IntArray =
   for i in 0 ..< s.len:
     result[i] = r[i]
 
-proc burrowsWheeler*(s: AnyString, rotations: IntArray): tuple[s: string, i: int] =
-  let L = s.len
-  result.s = newString(L)
-  for i in 0 ..< L:
-    var j = rotations[i] + L - 1
-    if j >= L:
-      j -= L
-    result.s[i] = s[j]
-    if rotations[i] == 0:
-      result.i = i
+const specialChar = '\0'
+import future
 
-proc burrowsWheeler*(s: AnyString): tuple[s: string, i: int] =
+proc burrowsWheeler*(s: AnyString, rotations: IntArray): string =
+  let L = s.len
+  result = newString(L + 1)
+  result[0] = s[high(s)]
+  for i in 1 .. L:
+    let j = rotations[i - 1]
+    if j == 0:
+      result[i] = specialChar
+    else:
+      result[i] = s[j - 1]
+
+proc burrowsWheeler*(s: AnyString): string =
   burrowsWheeler(s, suffixArray(s))
 
-proc inverseBurrowsWheeler*(s: AnyString, i: int): string =
+
+proc inverseBurrowsWheeler*(s: AnyString): string =
   let alphabet = uniq(s).sorted(system.cmp[char])
   var
     eqPartials = newTable[char, int]()
     ltCounters = newTable[char, int]()
     eqCounters = newSeqOfCap[int](s.len)
-  for c in s:
+    currentIndex = 0
+    currentChar = specialChar
+  for i, c in s:
+    if c == specialChar:
+      currentIndex = i
     if eqPartials.hasKey(c):
       eqCounters.add(eqPartials[c])
       eqPartials[c] += 1
@@ -728,14 +743,11 @@ proc inverseBurrowsWheeler*(s: AnyString, i: int): string =
   for c in alphabet:
     ltCounters[c] = total
     total += eqPartials[c]
-  result = newString(s.len)
-  var
-    currentChar = s[i]
-    currentIndex = i
-  for j in countdown(s.high, 0):
-    result[j] = currentChar
+  result = newString(s.len - 1)
+  for j in countdown(result.high, 0):
     currentIndex = eqCounters[currentIndex] + ltCounters[currentChar]
     currentChar = s[currentIndex]
+    result[j] = currentChar
 
 type
   FMIndex* = object
@@ -761,7 +773,7 @@ proc fmIndexWithSuffixArray*(s: AnyString): tuple[fm: FMIndex, sa: IntArray] =
   for c in alphabet:
     lookup[c] = total
     total += charCount[c]
-  let (bwt, _) = burrowsWheeler(s, sa)
+  let bwt = burrowsWheeler(s, sa)
   return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: s.len), sa)
 
 proc fmIndex*(s: AnyString): FMIndex = fmIndexWithSuffixArray(s).fm

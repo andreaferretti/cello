@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import bitops, math, sequtils, strutils, algorithm, tables
+import bitops, math, sequtils, strutils, algorithm, tables, future
 import spills
 
 type AnyString* = string or seq[char] or Spill[char]
@@ -609,19 +609,16 @@ proc dc3(xs: seq[int]): seq[int] =
   var k, k0, k12 = 0
   result = newSeq[int](SA0.len + SA12.len)
 
-  # Pad both partial suffix arrays to allow
-  # comparison after their end
-  R0.add(0)
-  R12.add(0)
-
-  template pos12(i: int): int =
-    if i mod 3 == 1: i div 3
-    else: i div 3 + L2
+  template r12(i: int): int =
+    if i >= xs.len - padding: 0
+    else:
+      if i mod 3 == 1: R12[i div 3]
+      else: R12[i div 3 + L2]
 
   template compareB1(i, j: int): bool =
     if xs[i] < xs[j]: true
     elif xs[j] < xs[i]: false
-    else: R12[pos12(i + 1)] < R12[pos12(j + 1)]
+    else: r12(i + 1) < r12(j + 1)
 
   template compareB2(i, j: int): bool =
     if xs[i] < xs[j]: true
@@ -673,7 +670,7 @@ proc enumerate(s: string): seq[int] =
   for _ in 1 .. padding:
     result.add(0)
 
-proc suffixArray1*(s: string): IntArray =
+proc suffixArray*(s: string): IntArray =
   ints(dc3(enumerate(s)))
 
 
@@ -705,7 +702,6 @@ proc suffixArray*(s: AnyString): IntArray =
     result[i] = r[i]
 
 const specialChar = '\0'
-import future
 
 proc burrowsWheeler*(s: AnyString, rotations: IntArray): string =
   let L = s.len

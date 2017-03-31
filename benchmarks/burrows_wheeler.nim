@@ -29,13 +29,13 @@ proc main() =
   echo "Initialization done"
 
   sw.start()
-  let (s, i) = burrowsWheeler(x)
+  let s = burrowsWheeler(x)
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to do the Burrows-Wheeler transform of a  ", width, " long string."
 
   sw.start()
-  let y = inverseBurrowsWheeler(s, i)
+  let y = inverseBurrowsWheeler(s)
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to do the inverse Burrows-Wheeler transform of a  ", width, " long string."

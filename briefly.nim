@@ -710,7 +710,7 @@ import future
 proc burrowsWheeler*(s: AnyString, rotations: IntArray): string =
   let L = s.len
   result = newString(L + 1)
-  result[0] = s[high(s)]
+  result[0] = s[s.len - 1]
   for i in 1 .. L:
     let j = rotations[i - 1]
     if j == 0:

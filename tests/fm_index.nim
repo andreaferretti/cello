@@ -50,20 +50,20 @@ suite "FM index":
         y = $(x.rotate(i))
       check y.startsWith(pattern)
 
-  # test "backward search on a memory-mapped string":
-  #   initSpills()
-  #   var x = spill[char]("briefly.nim", hasHeader = false)
-  #   defer:
-  #     x.close()
-  #   let
-  #     pattern = "fmIndex"
-  #     fm = fmIndex(x)
-  #     sa = suffixArray(x)
-  #     positions = fm.search(pattern)
-  #     realPositions = toSeq(positions).mapIt(sa[it])
-  #
-  #   check(realPositions.len > 0)
-  #
-  #   for p in realPositions:
-  #     for i in 0 .. pattern.high:
-  #       check(x[p + i] == pattern[i])
+  test "backward search on a memory-mapped string":
+    initSpills()
+    var x = spill[char]("briefly.nim", hasHeader = false)
+    defer:
+      x.close()
+    let
+      pattern = "fmIndex"
+      fm = fmIndex(x)
+      sa = suffixArray(x)
+      positions = fm.search(pattern)
+      realPositions = toSeq(positions).mapIt(sa[it])
+
+    check(realPositions.len > 0)
+
+    for p in realPositions:
+      for i in 0 .. pattern.high:
+        check(x[p + i] == pattern[i])

@@ -3,6 +3,10 @@
 Cello is a library of succinct data structures, oriented in particular
 for string searching and other string operations.
 
+Notice that it is not Unicode-aware: think more of searching large genomic
+strings or symbolized time series, rather then using it for internationalized
+text, although I may consider Unicode operations in the future.
+
 ## Operations
 
 The most common operations that we implement on various kind of sequence data

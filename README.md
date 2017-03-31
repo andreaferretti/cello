@@ -208,10 +208,11 @@ echo y # @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
 ### Burrows-Wheeler transform
 
 The [Burrows-Wheeler transform](http://michael.dipperstein.com/bwt/) of a string
-is a string having the same length, together with a distinguished index.
-Once one has a suffix array `sa` for the string `s`, the Burrows-Wheeler
-transform is the string which at the index `i` has the last character of the
-rotation of `s` by `sa[i]`. The distinguished index if the permutation of `0`.
+is a string one character longer, together with a distinguished character.
+Once one has a suffix array `sa` for the string `s & '\0'`, where `\0` is our
+distinguished character, the Burrows-Wheeler transform is the string which at
+the index `i` has the last character of the rotation of `s` by `sa[i]`. The
+distinguished index if the permutation of `\0`.
 
 We recall the following two facts:
 
@@ -226,12 +227,18 @@ An example of usage is this:
 ```nim
 let
   s = "The quick brown fox jumps around the lazy dog"
-  (t, i) = burrowsWheeler(s)
-  u = inverseBurrowsWheeler(t, i)
+  t = burrowsWheeler(s)
+  u = inverseBurrowsWheeler(t)
 
-echo t # skynxeedg l in hh otTu c uwudrrfm abp qjoooza
+echo t # gskynxeed\0 l in hh otTu c uwudrrfm abp qjoooza
 echo u # The quick brown fox jumps around the lazy dog
 ```
+
+Notice that for this to work we assume that `s` does not contain `\0` itself.
+We use the fact that Nim strings are not null terminated, hence `\0` is a
+valid character. Notice that printing the transformed string may not work as
+intended, since the terminal may interpret the embedded `\0` as a string
+terminator.
 
 [Reference](http://www.hpl.hp.com/techreports/Compaq-DEC/SRC-RR-124.pdf)
 

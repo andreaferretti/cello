@@ -191,7 +191,7 @@ echo t # jumps around the lezy dogThe quick brown fox
 
 The suffix array of a string is a permutation of the numbers from 0 up to the
 string length excluded. The permutation is obtained by considering, for each
-`i`, the string rotated by `i`, and sorting these strings in lexicographical
+`i`, the suffix starting at `i`, and sorting these strings in lexicographical
 order. The resulting order is the suffix array.
 
 Here the suffix array is represented as an IntArray. It can be obtained as
@@ -204,6 +204,30 @@ let
 
 echo y # @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
 ```
+
+Sorting the indices may be a costly operation. One can use the fact that the
+suffixes of a string are a quite special collection to produce more efficient
+algorithms. Other than the sort-based one, we offer the
+[DC3 algorithm](http://spencer-carroll.com/the-dc3-algorithm-made-simple/).
+
+To use an alternative algorithm, just pass an additional parameter, of type
+
+```nim
+type SuffixArrayAlgorithm* {.pure.} = enum
+  Sort, DC3
+```
+
+like this
+
+```nim
+let
+  x = "this is a test."
+  y = suffixArray(x, SuffixArrayAlgorithm.DC3)
+
+echo y # @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
+```
+
+[Reference](https://www.cs.helsinki.fi/u/tpkarkka/publications/jacm05-revised.pdf)
 
 ### Burrows-Wheeler transform
 

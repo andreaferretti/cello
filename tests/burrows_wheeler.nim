@@ -32,37 +32,22 @@ suite "Burrows-Wheeler transform":
 
     for i in t.low .. t.high:
       check s[i] == t[i]
-  # test "computing the suffix array with dc3":
-  #   let
-  #     x = "TAATT"
-  #     s = suffixArray(x)
-  #     s1 = suffixArray1(x)
-  #
-  #   echo s.toIntSeq
-  #   echo s1.toIntSeq
-  #
-  #   for i in 0 ..< x.len:
-  #     check s[i] == s1[i]
-  # test "computing the suffix array with dc3":
-  #   var
-  #     k = 2
-  #     matchOk = true
-  #     x = ""
-  #   while matchOk and k < 10000:
-  #     x = randomString(k, ['A', 'C', 'T', 'G'])
-  #     echo x
-  #     let
-  #       s = suffixArray(x)
-  #       s1 = suffixArray1(x)
-  #
-  #     for i in 0 ..< k:
-  #       if s[i] != s1[i]:
-  #         matchOk = false
-  #
-  #     k += 1
-  #
-  #   echo k
-  #   echo x
+  test "computing the suffix array with dc3":
+    let
+      x = "TAATT"
+      s = suffixArray(x, SuffixArrayAlgorithm.Sort)
+      s1 = suffixArray(x, SuffixArrayAlgorithm.DC3)
+
+    for i in 0 ..< x.len:
+      check s[i] == s1[i]
+  test "computing the suffix array with dc3 for a random string":
+    let
+      x = randomString(1000, ['A', 'C', 'T', 'G'])
+      s = suffixArray(x, SuffixArrayAlgorithm.Sort)
+      s1 = suffixArray(x, SuffixArrayAlgorithm.DC3)
+
+    for i in 0 ..< x.len:
+      check s[i] == s1[i]
 
   test "direct transform":
     let x = "this is a test."
@@ -76,7 +61,7 @@ suite "Burrows-Wheeler transform":
     check x == y
   test "inverse transform of a random string":
     let
-      x = randomString(250, ['A', 'C', 'G', 'T'])
+      x = randomString(1000, ['A', 'C', 'G', 'T'])
       s = burrowsWheeler(x)
       y = inverseBurrowsWheeler(s)
     check x == y

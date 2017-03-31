@@ -662,7 +662,7 @@ proc uniq(content: string): seq[char] =
     if not result.contains(x):
       result.add(x)
 
-proc enumerate(s: string): seq[int] =
+proc enumerate(s: AnyString): seq[int] =
   let alphabet = uniq(s).sorted(system.cmp[char])
   result = newSeq[int](s.len)
   for i, c in s:
@@ -670,14 +670,10 @@ proc enumerate(s: string): seq[int] =
   for _ in 1 .. padding:
     result.add(0)
 
-proc suffixArray*(s: string): IntArray =
+proc dc3suffixArray(s: AnyString): IntArray =
   ints(dc3(enumerate(s)))
 
-
-
-####################################################
-
-proc suffixArray*(s: AnyString): IntArray =
+proc sortSuffixArray(s: AnyString): IntArray =
   let L = s.len
   proc compareIndices(j, k: int): int =
     var
@@ -690,16 +686,22 @@ proc suffixArray*(s: AnyString): IntArray =
       currentK += 1
       if currentJ == L:
         return -1
-        # currentJ = 0
       if currentK == L:
         return 1
-        # currentK = 0
     return 0
   var r = toSeq(0 ..< s.len)
   r.sort(compareIndices)
   result = ints(s.len, maxBits(s.len))
   for i in 0 ..< s.len:
     result[i] = r[i]
+
+type SuffixArrayAlgorithm* {.pure.} = enum
+  Sort, DC3
+
+proc suffixArray*(s: AnyString, algorithm = SuffixArrayAlgorithm.Sort): IntArray =
+  case algorithm
+  of SuffixArrayAlgorithm.Sort: sortSuffixArray(s)
+  of SuffixArrayAlgorithm.DC3: dc3suffixArray(s)
 
 const specialChar = '\0'
 

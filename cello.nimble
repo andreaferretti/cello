@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Andrea Ferretti"
-description   = "String operations with succinct data structures"
+description   = "String algorithms with succinct data structures"
 license       = "Apache2"
 skipDirs      = @["tests", "benchmarks"]
 

@@ -1,7 +1,7 @@
 # Cello
 
 Cello is a library of succinct data structures, oriented in particular
-for string searching and string operations.
+for string searching and other string operations.
 
 ## Operations
 
@@ -347,6 +347,9 @@ echo boyerMooreHorspool(x, pattern, start = 2)  # 4 (issippi)
 
 ## TODO
 
+* Improve DC3 algorithm
+* Add approximate string matching
+* More applications of suffix arrays
 * Construct wavelet trees in threads
 * Make use of SIMD operations to improve performance
 * Allow data structures to work on memory-mapped files

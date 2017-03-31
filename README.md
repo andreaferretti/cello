@@ -1,6 +1,6 @@
-# Briefly
+# Cello
 
-Briefly is a library of succinct data structures, oriented in particular
+Cello is a library of succinct data structures, oriented in particular
 for string searching and string operations.
 
 ## Operations

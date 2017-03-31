@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import bitops, math, sequtils, strutils, algorithm, tables, future
+import bitops, math, sequtils, strutils, algorithm, tables
 import spills
 
 type AnyString* = string or seq[char] or Spill[char]

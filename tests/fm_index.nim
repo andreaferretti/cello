@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import briefly, unittest, random, strutils, sequtils, spills
+import cello, unittest, random, strutils, sequtils, spills
 include utils
 
 
@@ -52,7 +52,7 @@ suite "FM index":
 
   test "backward search on a memory-mapped string":
     initSpills()
-    var x = spill[char]("briefly.nim", hasHeader = false)
+    var x = spill[char]("cello.nim", hasHeader = false)
     defer:
       x.close()
     let

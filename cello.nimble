@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Andrea Ferretti"
-description   = "Succinct data structures"
+description   = "String operations with succinct data structures"
 license       = "Apache2"
 skipDirs      = @["tests", "benchmarks"]
 
@@ -10,7 +10,7 @@ skipDirs      = @["tests", "benchmarks"]
 
 requires "nim >= 0.16.0", "spills >= 0.1.1"
 
-task test, "run briefly tests":
+task test, "run cello tests":
   --hints: off
   --linedir: on
   --stacktrace: on
@@ -20,7 +20,7 @@ task test, "run briefly tests":
   --run
   setCommand "c", "tests/test.nim"
 
-task tests, "run briefly tests":
+task tests, "run cello tests":
   setCommand "test"
 
 task benchmarkRRR, "benchmark RRR bit array":

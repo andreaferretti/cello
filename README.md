@@ -311,7 +311,20 @@ computing the suffix array is quite costly, there is a way to get both at the
 same time. In the above example, we could write as well
 
 ```nim
-let (fm, sa) = fmIndexWithSuffixArray(x)
+let
+  index = searchIndex(x)
+  fm = index.fmIndex
+  sa = index.suffixArray
+```
+
+The above type can be used to streamline search:
+
+```nim
+let
+  index = searchIndex(x)
+  positions = index.search(pattern)
+
+echo positions # @[1, 4]
 ```
 
 ### Boyer-Moore-Horspool search

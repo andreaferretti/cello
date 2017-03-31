@@ -751,10 +751,13 @@ type
     bwt: WaveletTree
     lookup: TableRef[char, int]
     length: int
+  SearchIndex* = object
+    fmIndex*: FMIndex
+    suffixArray*: IntArray
   Positions* = object
     first*, last*: int
 
-proc fmIndexWithSuffixArray*(s: AnyString,  algorithm = SuffixArrayAlgorithm.Sort): tuple[fm: FMIndex, sa: IntArray] =
+proc searchIndex*(s: AnyString,  algorithm = SuffixArrayAlgorithm.Sort): SearchIndex =
   let
     alphabet = uniq(s).sorted(system.cmp[char])
     sa = suffixArray(s, algorithm)
@@ -772,10 +775,13 @@ proc fmIndexWithSuffixArray*(s: AnyString,  algorithm = SuffixArrayAlgorithm.Sor
     lookup[c] = total
     total += charCount[c]
   let bwt = burrowsWheeler(s, sa)
-  return (FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: bwt.len), sa)
+  return SearchIndex(
+    fmIndex: FMIndex(bwt: waveletTree(bwt), lookup: lookup, length: bwt.len),
+    suffixArray: sa
+  )
 
 proc fmIndex*(s: AnyString, algorithm = SuffixArrayAlgorithm.Sort): FMIndex =
-  fmIndexWithSuffixArray(s, algorithm).fm
+  searchIndex(s, algorithm).fmIndex
 
 proc search*(index: FMIndex, pattern: AnyString): Positions =
   var
@@ -789,6 +795,12 @@ proc search*(index: FMIndex, pattern: AnyString): Positions =
   return Positions(first: s - 1, last: e - 2)
 
 proc toSeq*(p: Positions): seq[int] = sequtils.toSeq(p.first .. p.last)
+
+proc search*(index: SearchIndex, pattern: AnyString): seq[int] =
+  let ps = index.fmIndex.search(pattern)
+  result = newSeq[int]()
+  for i in ps.first .. ps.last:
+    result.add(index.suffixArray[i])
 
 # An implementation of Boyer-Moore-Horspool string searching.
 proc boyerMooreHorspool*(target: AnyString, query: string, start = 0): int =

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import cello, unittest, random, strutils, sequtils, spills
+import cello, unittest, random, strutils, sequtils, algorithm, spills
 include utils
 
 
@@ -32,6 +32,15 @@ suite "FM index":
         i = sa[j]
         y = $(x.rotate(i))
       check y.startsWith(pattern)
+
+  test "backward search with index":
+    let
+      x = "mississippi"
+      pattern = "iss"
+      index = searchIndex(x)
+      positions = index.search(pattern)
+
+    check positions.sorted(system.cmp[int]) == @[1, 4]
 
   test "backward search on a random string":
     let

@@ -1,9 +1,37 @@
 # Cello
 
-Cello is a library of succinct data structures, oriented in particular
-for string searching and other string operations.
+Cello is a library of [succinct data structures](https://en.wikipedia.org/wiki/Succinct_data_structure),
+oriented in particular for string searching and other string operations.
 
-Notice that it is not Unicode-aware: think more of searching large genomic
+Usually, searching for patterns in a string takes `O(n)` time, where `n` is
+the length of the string. Indices can speedup the search, but take additional
+space, which can be costly for very large strings. A data structure is called
+succinct when it takes `n + o(n)` space, where `n` is the space needed to store
+the data anyway. Hence succinct data structures can provide additional
+operations with limited space overhead.
+
+It turns out that strings admit succinct indices, which do not take much more
+space than the string itself, but allow for `O(k)` substring search, where `k`
+is the length of the *substring*. Usually, this is much shorter, and thi
+considerably improves search times. Cello provide such indices and many other
+related string operations.
+
+An example of usage would be:
+
+```nim
+let
+  x = someLongString
+  pattern = someShortString
+  index = searchIndex(x)
+  positions = index.search(pattern)
+
+echo positions
+```
+Many intermediate data structures are constructed to provide such indices,
+though, and as they may be in independent interest, we describe them in the
+following.
+
+Notice that Cello is not Unicode-aware: think more of searching large genomic
 strings or symbolized time series, rather then using it for internationalized
 text, although I may consider Unicode operations in the future.
 

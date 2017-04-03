@@ -12,7 +12,7 @@ operations with limited space overhead.
 
 It turns out that strings admit succinct indices, which do not take much more
 space than the string itself, but allow for `O(k)` substring search, where `k`
-is the length of the *substring*. Usually, this is much shorter, and thi
+is the length of the *substring*. Usually, this is much shorter, and this
 considerably improves search times. Cello provide such indices and many other
 related string operations.
 
@@ -31,6 +31,25 @@ Many intermediate data structures are constructed to provide such indices,
 though, and as they may be in independent interest, we describe them in the
 following.
 
+Notice that a string here just stands for a (usually very long) sequence of
+symbols taken from a (usually small) alphabet. Prototypical examples include
+
+* genomic data, where the alphabet is `A, C, G, T` or
+* time series, where each value is represented by a symbol, such as `HIGH`,
+  `MEDIUM`, `LOW`, or `UP`, `DOWN`
+* where only two values are available, it is often convenient to store the
+  data as bit sequences to save space.
+
+At the moment all operations are implemented on
+
+```nim
+type AnyString = string or seq[char] or Spill[char]
+```
+
+where [spills](https://github.com/andreaferretti/spills) are just memory-mapped
+sequences. The library may become generic in the future, although this is not
+a priority.
+
 Notice that Cello is not Unicode-aware: think more of searching large genomic
 strings or symbolized time series, rather then using it for internationalized
 text, although I may consider Unicode operations in the future.
@@ -38,7 +57,8 @@ text, although I may consider Unicode operations in the future.
 ## Operations
 
 The most common operations that we implement on various kind of sequence data
-are `rank` and `select`.
+are `rank` and `select`. We first describe them for sequences of bits, which are
+the foundation we use to store more complex kind of data.
 
 For bit sequences, `rank(i)` counts the number of 1 bits in the first `i`
 places. The number of 0 bits can easily be obtained as `i - rank(i)`. Viceversa,
@@ -359,12 +379,22 @@ let
 echo positions # @[1, 4]
 ```
 
+[Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)
+
 ### Boyer-Moore-Horspool search
 
 To make a comparison with naive string searching (without using indices),
 an implementation of Boyer-Moore-Horspool string searching is provided.
 
-Is it meant to be used as follows:
+The Boyer-Moore algorithm and variations (such as the one used here, due to
+Horspool) scan a string linearly to find a pattern, but use a precomputed table
+based on the pattern to skip more than one charachter at a time.
+The key observation is that after making a comparison for the pattern in a given
+position, one already knows that some subsequent positions will not match for
+sure, hence can be skipped. The resulting algorithm is still `O(n)` in the
+length of the string, but may perform less than `n` actual comparisons.
+
+The API mimics `strutils.find` and it is meant to be used as follows:
 
 ```nim
 let
@@ -375,7 +405,7 @@ echo boyerMooreHorspool(x, pattern) # 1 (ississippi)
 echo boyerMooreHorspool(x, pattern, start = 2)  # 4 (issippi)
 ```
 
-[Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)
+[Reference](http://onlinelibrary.wiley.com/doi/10.1002/spe.4380100608/abstract)
 
 ## TODO
 

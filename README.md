@@ -54,7 +54,7 @@ Notice that Cello is not Unicode-aware: think more of searching large genomic
 strings or symbolized time series, rather then using it for internationalized
 text, although I may consider Unicode operations in the future.
 
-## Operations
+## Basic operations
 
 The most common operations that we implement on various kind of sequence data
 are `rank` and `select`. We first describe them for sequences of bits, which are

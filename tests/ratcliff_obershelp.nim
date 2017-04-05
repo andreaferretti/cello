@@ -11,6 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
-  ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./suffix_array,
-  ./burrows_wheeler, ./fm_index, ./boyer_moore, ./ratcliff_obershelp
+import cello, unittest
+
+
+suite "Ratcliff-Obershelp similarity":
+  test "computing the longest common substring":
+    let
+      a = "MATHEMATICS"
+      b = "MATEMATICA"
+
+    check longestCommonSubString(a, b) == (4, 10, 3, 9)
+  test "computing Ratcliff-Obershelp similarity":
+    let
+      a = "ALEXANDRE"
+      b = "ALEKSANDER"
+
+    check ratcliffObershelp(a, b) == (14.0 / 19.0)

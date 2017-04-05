@@ -516,8 +516,6 @@ proc `$`*(r: RotatedString): string =
 
 const padding = 2
 
-template divup(a, b: int): int = a div b + (if a mod b == 0: 0 else: 1)
-
 iterator samples(top: int): int =
   var i = 1
   while i < top - padding:
@@ -830,3 +828,61 @@ proc `[]`*(s: Spill[char], x: Slice[int]): string =
   result = newStringOfCap(x.b - x.a + 1)
   for i in x.a .. x.b:
     result.add(s[i])
+
+proc longestCommonSubstring*(a, b: AnyString, minA, maxA, minB, maxB: int): tuple[startA, finishA, startB, finishB: int] =
+  let
+    sizeA = maxA - minA
+    sizeB = maxB - minB
+  var
+    L = newSeq[int](sizeA * sizeB)
+    max = 0
+    startA = minA
+    finishA = minA
+    startB = minB
+    finishB = minB
+
+  template `[]=`(xs: seq[int], i, j, v: int) =
+    xs[sizeA * (j - minB) + (i - minA)] = v
+
+  template `[]`(xs: seq[int], i, j: int): int =
+    xs[sizeA * (j - minB) + (i - minA)]
+
+  for i in minA .. < maxA:
+    for j in minB .. < maxB:
+      if a[i] == b[j]:
+        if i == minA or j == minB:
+          L[i, j] = 1
+        else:
+          L[i,j] = L[i - 1, j - 1] + 1
+        if L[i, j] > max:
+          max = L[i, j]
+          startA = i - max + 1
+          finishA = i + 1
+          startB = j - max + 1
+          finishB = j + 1
+      else:
+        L[i, j] = 0
+
+  return (startA, finishA, startB, finishB)
+
+proc longestCommonSubstring*(a, b: AnyString): auto =
+  longestCommonSubstring(a, b, 0, a.len, 0, b.len)
+
+proc longestCommonSubstringTotal(a, b: AnyString, minA, maxA, minB, maxB: int): int =
+  let
+    (startA, finishA, startB, finishB) = longestCommonSubstring(a, b, minA, maxA, minB, maxB)
+  if startA == finishA or startB == finishB:
+    return 0
+  let
+    left = longestCommonSubstringTotal(a, b, minA, startA, minB, startB)
+    right = longestCommonSubstringTotal(a, b, finishA, maxA, finishB, maxB)
+    center = (finishA - startA)
+  return left + center + right
+
+proc longestCommonSubstringTotal(a, b: AnyString): int =
+  longestCommonSubstringTotal(a, b, 0, a.len, 0, b.len)
+
+# An implementation of Ratcliff-Obershelp similarity
+proc ratcliffObershelp*(a, b: string): float =
+  let common = longestCommonSubstringTotal(a, b)
+  return (2 * common).float / (a.len + b.len).float

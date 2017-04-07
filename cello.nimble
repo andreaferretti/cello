@@ -39,6 +39,10 @@ task benchmarkFM, "benchmark FM indices":
   withDir "benchmarks":
     exec "nimble benchmarkFM"
 
+task benchmarkRO, "benchmark Ratcliff-Obershelp similarity":
+  withDir "benchmarks":
+    exec "nimble benchmarkRO"
+
 task spaceRRR, "benchmark the space of RRR bit array":
   withDir "benchmarks":
     exec "nimble spaceRRR"

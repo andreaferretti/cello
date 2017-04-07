@@ -4,5 +4,6 @@ nimcache
 /benchmarks/wavelet_tree
 /benchmarks/burrows_wheeler
 /benchmarks/fm_index
+/benchmarks/ratcliff_obershelp
 /benchmarks/rrr_space
 /benchmarks/wavelet_tree_space

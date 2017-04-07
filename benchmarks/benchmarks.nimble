@@ -33,6 +33,12 @@ task benchmarkFM, "benchmark FM indices":
   --run
   setCommand "c", "fm_index.nim"
 
+task benchmarkRO, "benchmark Ratcliff-Obershelp similarity":
+  --define: release
+  --path: ".."
+  --run
+  setCommand "c", "ratcliff_obershelp.nim"
+
 task spaceRRR, "benchmark the space of RRR bit array":
   --define: release
   --define: nimTypeNames

@@ -381,6 +381,11 @@ echo positions # @[1, 4]
 
 [Reference](http://people.unipmn.it/manzini/papers/focs00draft.pdf)
 
+## Applications
+
+Here we describe a few applications of the above data structures, together
+with some other string utilities included in Cello.
+
 ### Boyer-Moore-Horspool search
 
 To make a comparison with naive string searching (without using indices),
@@ -407,10 +412,104 @@ echo boyerMooreHorspool(x, pattern, start = 2)  # 4 (issippi)
 
 [Reference](http://onlinelibrary.wiley.com/doi/10.1002/spe.4380100608/abstract)
 
+### Levenshtein similarity
+
+The [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+(or edit distance) between two strings is the minimum number of insertions,
+deletions or substitutions required to change one string into the other.
+
+It is computed by `strutils.editDistance`. Here we expose a similarity measure
+derived from it, defined as `s = (L - e) / L`, where `L` is the cumulative
+length of the two strings, and `e` is the edit distance. It is a number
+between 0 and 1, which is 1 only if the two strings are equal.
+
+It is simply used as
+
+```nim
+let
+  a = someString
+  b = someOtherString
+  s = levenhstein(a, b)
+```
+
+### Ratcliff-Obershelp similarity
+
+The Levenshtein similarity is a quite crude measure of whether two strings
+resemble each other. A better measure is given by the
+[Ratcliff-Obershelp similarity](https://xlinux.nist.gov/dads/HTML/ratcliffObershelp.html)
+which is defined as `s = (2 * m) / L`, where `L` is the cumulative
+length of the two strings, and `m` is the number of matching characters.
+
+Matching characters are defined recursively: first we find the longest common
+substring `lcs` between the two and count the number of characters of `lcs` as
+matching. Then, recursively, we compare the number of matching characters in
+the chunks to the left of `lcs` and to the right of `lcs`.
+
+For instance, when comparing `ALEXANDRE` and `ALEKSANDER`, we find the following
+sequence of longest common substrings:
+
+* ALE
+* AND
+* R
+
+giving a Ratcliff-Obershelp similarity of `2 * (3 + 3 + 1) / (9 + 10).`
+
+It is simply used as
+
+```nim
+let
+  a = someString
+  b = someOtherString
+  s = ratcliffObershelp(a, b)
+```
+
+[Reference](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1988/8807/8807c/8807c.htm)
+
+### Approximate search
+
+We implement a naif form of approximate search for strings. The algorithm is
+as follows: when looking for a pattern we randomly select a substring of the
+pattern whose length is a given fraction (`exactness`) of the pattern itself.
+We then search for this substring exactly in the target string. If we find it,
+we focus on a window around this match having the same length as the pattern.
+We compare the similarity of the window with the pattern itself, using one
+of the similarity functions above. If this is above a given threshold
+(`tolerance`) we accept the match and return the position of the window;
+otherwise we try with another attempt. After a certain number of attempts
+fail, we return `-1`.
+
+The algorithm is driven by the following type:
+
+```nim
+type
+  Similarity {.pure.} = enum
+    RatcliffObershelp, Levenshtein
+  SearchOptions = object
+    exactness, tolerance: float
+    attempts: int
+    similarity: Similarity
+```
+
+and can be used like this:
+
+```nim
+let
+  s = someLongString
+  pattern = someShortString
+  index = searchIndex(s)
+  options = searchOptions(exactness = 0.2)
+  position = index.searchApproximate(x, pattern, options)
+
+echo position
+```
+
+The defaults are `exactness = 0.1`, `tolerance = 0.7`, `attempts = 30` and
+`similarity = Similarity.RatcliffObershelp`
+
 ## TODO
 
 * Improve DC3 algorithm
-* Add approximate string matching
+* Add [Jaro-Winkler](https://ilyankou.files.wordpress.com/2015/06/ib-extended-essay.pdf) similarity
 * More applications of suffix arrays
 * Construct wavelet trees in threads
 * Make use of SIMD operations to improve performance

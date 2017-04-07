@@ -31,10 +31,10 @@ proc main() =
   sw.start()
   for i in 0 .. <  L:
     for j in (i + 1) .. <  L:
-      discard editDistance(words[i], words[j])
+      discard levenshtein(words[i], words[j])
   sw.stop()
 
-  echo "We have required ", sw.secs(), " seconds to compute all Levenshtein distances among ", L, " strings."
+  echo "We have required ", sw.secs(), " seconds to compute all Levenshtein similarities among ", L, " strings."
 
 when isMainModule:
   main()

@@ -33,15 +33,6 @@ suite "FM index":
         y = $(x.rotate(i))
       check y.startsWith(pattern)
 
-  test "backward search with index":
-    let
-      x = "mississippi"
-      pattern = "iss"
-      index = searchIndex(x)
-      positions = index.search(pattern)
-
-    check positions.sorted(system.cmp[int]) == @[1, 4]
-
   test "backward search on a random string":
     let
       x = randomString(1000, ['A', 'C', 'G', 'T'])

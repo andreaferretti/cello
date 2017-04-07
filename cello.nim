@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import bitops, math, sequtils, strutils, algorithm, tables
+import bitops, math, sequtils, strutils, algorithm, tables, random
 import spills
 
 type AnyString* = string or seq[char] or Spill[char]
@@ -886,3 +886,54 @@ proc longestCommonSubstringTotal(a, b: AnyString): int =
 proc ratcliffObershelp*(a, b: string): float =
   let common = longestCommonSubstringTotal(a, b)
   return (2 * common).float / (a.len + b.len).float
+
+# An implementation of Levenshtein similarity
+proc levenshtein*(a, b: string): float =
+  let
+    dist = editDistance(a, b)
+    L = a.len + b.len
+  return (L - dist).float / L.float
+
+type
+  Similarity {.pure.} = enum
+    RatcliffObershelp, Levenshtein
+  SearchOptions = object
+    exactness, tolerance: float
+    attempts: int
+    similarity: Similarity
+
+proc searchOptions*(exactness = 0.1, tolerance = 0.7, attempts = 30, similarity = Similarity.RatcliffObershelp): SearchOptions =
+  SearchOptions(
+    exactness: exactness,
+    tolerance: tolerance,
+    attempts: attempts,
+    similarity: similarity
+  )
+
+proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: SearchOptions): int =
+  # We choose our similarity function
+  var similarity = case options.similarity
+    of Similarity.RatcliffObershelp: ratcliffObershelp
+    of Similarity.Levenshtein: levenshtein
+  # We are looking for an exact match of a substring of this length
+  let exactLen = (pattern.len.float * options.exactness).int
+  # We then select a certain number of random substrings of this length
+  # They cannot start later than `maxStart` characters, since the are
+  # long `exactLen`
+  let maxStart = pattern.len - exactLen
+  for i in 1 .. options.attempts:
+    let
+      begin = random(maxStart)
+      substring = pattern[begin .. < (begin + exactLen)]
+    let positions = search(index, substring)
+    for p in positions:
+      # We look for an approximate match in a window around the exact match
+      let
+        windowStart = max(p - begin, 0)
+        windowEnd = windowStart + pattern.len - 1
+        window = orig[windowStart .. windowEnd]
+      # Finally, we check whether the window is similar enough to the query
+      let s = similarity(pattern, window)
+      if s >= options.tolerance:
+        return windowStart
+  return -1

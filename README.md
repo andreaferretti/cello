@@ -1,4 +1,4 @@
-# Cello
+# Nimoy <img align=right src="img/cello.jpg" alt="(Icon)" />
 
 Cello is a library of [succinct data structures](https://en.wikipedia.org/wiki/Succinct_data_structure),
 oriented in particular for string searching and other string operations.
@@ -515,3 +515,7 @@ The defaults are `exactness = 0.1`, `tolerance = 0.7`, `attempts = 30` and
 * Make use of SIMD operations to improve performance
 * Allow data structures to work on memory-mapped files
 * Implement assembly on top of FM indices following [this thesis](ftp://ftp.sanger.ac.uk/pub/resources/theses/js18/thesis.pdf)
+
+# Thanks
+
+The logo comes from [cliparts.co](http://cliparts.co/clipart/2313124)

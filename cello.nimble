@@ -4,7 +4,7 @@ version       = "0.1.1"
 author        = "Andrea Ferretti"
 description   = "String algorithms with succinct data structures"
 license       = "Apache2"
-skipDirs      = @["tests", "benchmarks"]
+skipDirs      = @["tests", "benchmarks", "img"]
 
 # Dependencies
 

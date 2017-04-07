@@ -1,4 +1,6 @@
-# Cello <img align=right src="https://raw.githubusercontent.com/unicredit/cello/master/img/cello.jpg" width="100" alt="(Icon)" />
+# Cello
+
+![logo](https://raw.githubusercontent.com/unicredit/cello/master/img/cello.jpg)
 
 Cello is a library of [succinct data structures](https://en.wikipedia.org/wiki/Succinct_data_structure),
 oriented in particular for string searching and other string operations.

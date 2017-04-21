@@ -29,7 +29,7 @@ suite "Search":
     let
       letters = ['A', 'C', 'G', 'T']
       x = randomString(100000, letters)
-    var pattern = x[1330 .. 1360]
+    var pattern = x[2330 .. 2360]
     # we change a few characters randomly
     var c = random(7)
     while c < pattern.len:
@@ -40,4 +40,4 @@ suite "Search":
       options = searchOptions(exactness = 0.2)
       position = index.searchApproximate(x, pattern, options)
 
-    check position == 1330
+    check position == 2330

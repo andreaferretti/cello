@@ -17,7 +17,7 @@ import spills
 type AnyString* = string or seq[char] or Spill[char]
 
 proc rank*[T](s: set[T], i: T): int =
-  for j in 0 ..< i:
+  for j in T(0) ..< i:
     if s.contains(j):
       inc result
 
@@ -101,7 +101,7 @@ proc rank*(s: BitArray, i: int): int =
   let
     j = i mod L
     k = i div L
-  for r in 0 .. < k:
+  for r in 0 ..< k:
     result += countSetBits(s.data[r])
   result += rank(s.data[k], j)
 
@@ -809,7 +809,7 @@ proc boyerMooreHorspool*(target: AnyString, query: string, start = 0): int =
   var skip = newSeq[int](257)
   for i in 1 .. 256:
     skip[i] = m
-  for k in 0 .. < (m - 1):
+  for k in 0 ..< (m - 1):
     skip[query[k].int] = m - k - 1
   var k = start + m - 1
   while k < n:
@@ -847,8 +847,8 @@ proc longestCommonSubstring*(a, b: AnyString, minA, maxA, minB, maxB: int): tupl
   template `[]`(xs: seq[int], i, j: int): int =
     xs[sizeA * (j - minB) + (i - minA)]
 
-  for i in minA .. < maxA:
-    for j in minB .. < maxB:
+  for i in minA ..< maxA:
+    for j in minB ..< maxB:
       if a[i] == b[j]:
         if i == minA or j == minB:
           L[i, j] = 1
@@ -924,7 +924,7 @@ proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: S
   for i in 1 .. options.attempts:
     let
       begin = random(maxStart)
-      substring = pattern[begin .. < (begin + exactLen)]
+      substring = pattern[begin ..< (begin + exactLen)]
     let positions = search(index, substring)
     for p in positions:
       # We look for an approximate match in a window around the exact match

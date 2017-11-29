@@ -18,7 +18,7 @@ suite "generating blocks in popcount order":
   test "generating blocks":
     var results = newSeq[string]()
     for x in blocks(popcount = 3, size = 5):
-      results.add bin(x)[59..64]
+      results.add bin(x)[59..63]
 
     let expected = @[
       "00111",

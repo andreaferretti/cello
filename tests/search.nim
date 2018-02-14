@@ -31,10 +31,10 @@ suite "Search":
       x = randomString(100000, letters)
     var pattern = x[2330 .. 2360]
     # we change a few characters randomly
-    var c = random(7)
+    var c = rand(6)
     while c < pattern.len:
-      pattern[c] = letters[random(4)]
-      c += random(7)
+      pattern[c] = letters[rand(3)]
+      c += rand(6)
     let
       index = searchIndex(x)
       options = searchOptions(exactness = 0.2)

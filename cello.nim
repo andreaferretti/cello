@@ -923,7 +923,7 @@ proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: S
   let maxStart = pattern.len - exactLen
   for i in 1 .. options.attempts:
     let
-      begin = random(maxStart)
+      begin = rand(maxStart - 1)
       substring = pattern[begin ..< (begin + exactLen)]
     let positions = search(index, substring)
     for p in positions:

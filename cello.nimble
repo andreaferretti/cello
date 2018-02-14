@@ -8,7 +8,7 @@ skipDirs      = @["tests", "benchmarks", "img"]
 
 # Dependencies
 
-requires "nim >= 0.16.0", "spills >= 0.1.1"
+requires "nim >= 0.16.0", "spills >= 0.1.2"
 
 task test, "run cello tests":
   --hints: off

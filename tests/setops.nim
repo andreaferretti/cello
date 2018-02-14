@@ -21,10 +21,10 @@ suite "operations over sets":
     x.incl(q.int8)
 
   test "rank":
-    check x.rank(16) == 3
-    check x.rank(30) == 15
-    check x.rank(40) == 20
+    check x.rank(16'i8) == 3
+    check x.rank(30'i8) == 15
+    check x.rank(40'i8) == 20
   test "select":
-    check x.select(3)  == 16
-    check x.select(15) == 28
-    check x.select(20) == 40
+    check x.select(3'i8)  == 16
+    check x.select(15'i8) == 28
+    check x.select(20'i8) == 40

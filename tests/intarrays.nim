@@ -20,7 +20,7 @@ suite "int arrays":
       x = newSeq[int](100)
       y = ints(100, 9)
     for i in 0 .. 99:
-      let r = random(512)
+      let r = rand(511)
       x[i] = r
       y[i] = r
     for i in 0 .. 99:
@@ -30,7 +30,7 @@ suite "int arrays":
       x = newSeq[int](100)
       y = ints(100, 9)
     for i in 0 .. 99:
-      x[i] = random(512)
+      x[i] = rand(511)
     for i in 0 .. 45:
       y.add(x[i])
     for i in 0 .. 45:
@@ -44,6 +44,6 @@ suite "int arrays":
   test "transforming to sequence and back":
     var x = newSeq[int](100)
     for i in 0 .. 99:
-      x[i] = random(512)
+      x[i] = rand(511)
     let y = ints(x)
     check x == y.toIntSeq

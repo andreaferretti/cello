@@ -25,6 +25,6 @@ suite "operations over sets":
     check x.rank(30'i8) == 15
     check x.rank(40'i8) == 20
   test "select":
-    check x.select(3'i8)  == 16
+    check x.select(3'i8) == 16
     check x.select(15'i8) == 28
     check x.select(20'i8) == 40

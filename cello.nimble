@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.3"
+version       = "0.1.4"
 author        = "Andrea Ferretti"
 description   = "String algorithms with succinct data structures"
 license       = "Apache2"
@@ -8,7 +8,7 @@ skipDirs      = @["tests", "benchmarks", "img"]
 
 # Dependencies
 
-requires "nim >= 0.16.0", "spills >= 0.1.2"
+requires "nim >= 0.18.0", "spills >= 0.1.3"
 
 task test, "run cello tests":
   --hints: off

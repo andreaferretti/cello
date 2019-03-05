@@ -895,9 +895,9 @@ proc levenshtein*(a, b: string): float =
   return (L - dist).float / L.float
 
 type
-  Similarity {.pure.} = enum
+  Similarity* {.pure.} = enum
     RatcliffObershelp, Levenshtein
-  SearchOptions = object
+  SearchOptions* = object
     exactness, tolerance: float
     attempts: int
     similarity: Similarity

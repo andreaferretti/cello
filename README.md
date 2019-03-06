@@ -467,7 +467,7 @@ let
 
 [Reference](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1988/8807/8807c/8807c.htm)
 
-### Jaro similarity
+### Jaro similarity
 
 The Jaro similarity of two strings `a` and `b` is given by
 
@@ -488,7 +488,7 @@ matches inside `a` and `b` respectively: `ALEANDRE`, `ALEANDER`. Hence here
 
 [Reference](https://ilyankou.files.wordpress.com/2015/06/ib-extended-essay.pdf)
 
-### Jaro-Winkler similarity
+### Jaro-Winkler similarity
 
 The Jaro-Winkler similarity of two strings is a correction to the Jaro similarity
 that favours strings which have a long common prefix. If `L` is the length of
@@ -522,7 +522,7 @@ The algorithm is driven by the following type:
 ```nim
 type
   Similarity {.pure.} = enum
-    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro
+    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro, JaroWinkler
   SearchOptions = object
     exactness, tolerance: float
     attempts: int

@@ -488,6 +488,22 @@ matches inside `a` and `b` respectively: `ALEANDRE`, `ALEANDER`. Hence here
 
 [Reference](https://ilyankou.files.wordpress.com/2015/06/ib-extended-essay.pdf)
 
+### Jaro-Winkler similarity
+
+The Jaro-Winkler similarity of two strings is a correction to the Jaro similarity
+that favours strings which have a long common prefix. If `L` is the length of
+the common prefix of two strings and `J` is the Jaro similarity, the Jaro-Winkler
+similarity is computed as
+
+```
+J + p * L * (1 - J)
+```
+
+where `p` is a constant factor, commonly set as `p=0.1`.
+
+**NB** The Jaro Winkler similarity can be higher than 1, unlike the other
+metrics implemented in Cello.
+
 ### Approximate search
 
 We implement a naif form of approximate search for strings. The algorithm is

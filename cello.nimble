@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.5"
+version       = "0.1.6"
 author        = "Andrea Ferretti"
 description   = "String algorithms with succinct data structures"
 license       = "Apache2"

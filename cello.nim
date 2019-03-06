@@ -947,9 +947,22 @@ proc jaro*(a, b: string): float =
 
   return ((mf / af) + (mf / bf) + ((mf - tf / 2) / mf)) / 3
 
+# An implementation of Jaro-Winkler similarity
+proc jaroWinkler*(a, b: string): float =
+  const p = 0.1
+  let j = jaro(a, b)
+  # Compute common prefix length
+  var L = 0
+  for i in 0 ..< min(len(a), len(b)):
+    if a[i] == b[i]:
+      inc(L)
+    else:
+      break
+  return j + p * L.float * (1 - j)
+
 type
   Similarity* {.pure.} = enum
-    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro
+    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro, JaroWinkler
   SearchOptions* = object
     exactness, tolerance: float
     attempts: int
@@ -970,6 +983,7 @@ proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: S
     of Similarity.Levenshtein: levenshtein
     of Similarity.LongestSubstring: longestCommonSubstringRatio
     of Similarity.Jaro: jaro
+    of Similarity.JaroWinkler: jaroWinkler
   # We are looking for an exact match of a substring of this length
   let exactLen = (pattern.len.float * options.exactness).int
   # We then select a certain number of random substrings of this length

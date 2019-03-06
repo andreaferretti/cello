@@ -14,7 +14,7 @@
 import cello, unittest
 
 template `=~`(a, b: float): bool =
-  (b - a) / (max(a, b)) < 10e-7
+  ((b - a) / (max(a, b))) < 1e-10
 
 
 suite "Jaro similarity":
@@ -23,3 +23,10 @@ suite "Jaro similarity":
     check jaro("DIXON", "DICKSONX") =~ 0.7666666667
     check jaro("JELLYFISH", "SMELLYFISH") =~ 0.8962962963
     check jaro("ALEXANDRE", "ALEKSANDER") =~ 0.8546296296
+
+  test "computing Jaro-Winkler similarity":
+    check jaroWinkler("MARTHA", "MARHTA") =~ 0.9611111111
+    check jaroWinkler("DIXON", "DICKSONX") =~ 0.8133333333
+    check jaroWinkler("JELLYFISH", "SMELLYFISH") =~ 0.8962962963
+    check jaroWinkler("ALEXANDRE", "ALEKSANDER") =~ 0.8982407407
+    check jaroWinkler("MATEMATICA", "MATHEMATICS") =~ 0.9342424242

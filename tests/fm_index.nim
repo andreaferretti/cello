@@ -56,7 +56,7 @@ suite "FM index":
     defer:
       x.close()
     let
-      pattern = "fmIndex"
+      pattern = "binarySearch"
       fm = fmIndex(x)
       sa = suffixArray(x)
       positions = fm.search(pattern)

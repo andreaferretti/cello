@@ -467,6 +467,27 @@ let
 
 [Reference](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1988/8807/8807c/8807c.htm)
 
+### Jaro similarity
+
+The Jaro similarity of two strings `a` and `b` is given by
+
+```
+0 if m == 0
+((m / len(a)) + (m / len(b)) + ((m - t / 2) / m)) / 3 otherwise
+```
+
+where `m` is number of matching characters and `t` is the number of transpositions.
+Here two characters are considered matching if they are equal and their ì
+distance is less then `max(len(a), len(b)) / 2`. The substrings of `a` and `b`
+given by matching characters are permutations of each other. Characters that
+match but appear in different positions in these strings are considered transpositions.
+
+For instance, when comparing `ALEXANDRE` and `ALEKSANDER`, we find the following
+matches inside `a` and `b` respectively: `ALEANDRE`, `ALEANDER`. Hence here
+`m = 8`, `t = 2`, so that the similarity is `((8 / 9) + (8 / 10) + (7 / 8)) / 3`.
+
+[Reference](https://ilyankou.files.wordpress.com/2015/06/ib-extended-essay.pdf)
+
 ### Approximate search
 
 We implement a naif form of approximate search for strings. The algorithm is
@@ -485,7 +506,7 @@ The algorithm is driven by the following type:
 ```nim
 type
   Similarity {.pure.} = enum
-    RatcliffObershelp, Levenshtein
+    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro
   SearchOptions = object
     exactness, tolerance: float
     attempts: int

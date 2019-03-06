@@ -887,6 +887,10 @@ proc ratcliffObershelp*(a, b: string): float =
   let common = longestCommonSubstringTotal(a, b)
   return (2 * common).float / (a.len + b.len).float
 
+proc longestCommonSubstringRatio*(a, b: string): float =
+  let (s, e, _, _) = longestCommonSubstring(a, b)
+  return (2 * (e - s)).float / (a.len + b.len).float
+
 # An implementation of Levenshtein similarity
 proc levenshtein*(a, b: string): float =
   let
@@ -894,9 +898,58 @@ proc levenshtein*(a, b: string): float =
     L = a.len + b.len
   return (L - dist).float / L.float
 
+# An implementation of Jaro similarity
+proc jaro*(a, b: string): float =
+  let
+    aLen = len(a)
+    bLen = len(b)
+    matchDistance = (max(aLen, bLen) div 2) - 1
+
+  if aLen == 0 and bLen == 0:
+    return 1
+
+  var
+    aMatches = newSeq[bool](aLen)
+    bMatches = newSeq[bool](bLen)
+    matches = 0
+    transpositions = 0
+
+  for i in 0 ..< aLen:
+    let
+      start = max(0, i - matchDistance)
+      finish = min(i + matchDistance, bLen - 1)
+
+    for j in start .. finish:
+      if bMatches[j]: continue
+      if a[i] != b[j]: continue
+      aMatches[i] = true
+      bMatches[j] = true
+      inc(matches)
+      break
+
+  if matches == 0:
+    return 0
+
+  var k = 0
+  for i in 0 ..< aLen:
+    if not aMatches[i]: continue
+    while not bMatches[k]:
+      inc(k)
+    if a[i] != b[k]:
+      inc(transpositions)
+    inc(k)
+
+  let
+    mf = matches.float
+    af = aLen.float
+    bf = bLen.float
+    tf = transpositions.float
+
+  return ((mf / af) + (mf / bf) + ((mf - tf / 2) / mf)) / 3
+
 type
   Similarity* {.pure.} = enum
-    RatcliffObershelp, Levenshtein
+    RatcliffObershelp, Levenshtein, LongestSubstring, Jaro
   SearchOptions* = object
     exactness, tolerance: float
     attempts: int
@@ -915,6 +968,8 @@ proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: S
   var similarity = case options.similarity
     of Similarity.RatcliffObershelp: ratcliffObershelp
     of Similarity.Levenshtein: levenshtein
+    of Similarity.LongestSubstring: longestCommonSubstringRatio
+    of Similarity.Jaro: jaro
   # We are looking for an exact match of a substring of this length
   let exactLen = (pattern.len.float * options.exactness).int
   # We then select a certain number of random substrings of this length

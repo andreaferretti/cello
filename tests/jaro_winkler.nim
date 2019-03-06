@@ -11,7 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
-  ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./suffix_array,
-  ./burrows_wheeler, ./fm_index, ./boyer_moore, ./ratcliff_obershelp,
-  ./jaro_winkler, ./search
+import cello, unittest
+
+template `=~`(a, b: float): bool =
+  (b - a) / (max(a, b)) < 10e-7
+
+
+suite "Jaro similarity":
+  test "computing Jaro similarity":
+    check jaro("MARTHA", "MARHTA") =~ 0.9444444444
+    check jaro("DIXON", "DICKSONX") =~ 0.7666666667
+    check jaro("JELLYFISH", "SMELLYFISH") =~ 0.8962962963
+    check jaro("ALEXANDRE", "ALEKSANDER") =~ 0.8546296296

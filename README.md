@@ -548,7 +548,6 @@ The defaults are `exactness = 0.1`, `tolerance = 0.7`, `attempts = 30` and
 ## TODO
 
 * Improve DC3 algorithm
-* Add [Jaro-Winkler](https://ilyankou.files.wordpress.com/2015/06/ib-extended-essay.pdf) similarity
 * More applications of suffix arrays
 * Construct wavelet trees in threads
 * Make use of SIMD operations to improve performance

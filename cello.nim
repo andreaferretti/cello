@@ -16,6 +16,8 @@ import spills
 
 type AnyString* = string or seq[char] or Spill[char]
 
+const minusOne = not(0'u)
+
 proc rank*[T](s: set[T], i: T): int =
   for j in T(0) ..< i:
     if s.contains(j):
@@ -516,17 +518,17 @@ proc `$`*(r: RotatedString): string =
 
 const padding = 2
 
-iterator samples(top: int): int =
+iterator samples(top: int): uint =
   var i = 1
   while i < top - padding:
-    yield i
+    yield i.uint
     i += 3
   i = 2
   while i < top - padding:
-    yield i
+    yield i.uint
     i += 3
 
-proc radixPass(a: seq[int], b: var seq[int], reference: seq[int], max: int, offset: int) =
+proc radixPass(a: seq[uint], b: var seq[uint], reference: seq[uint], max: uint, offset: uint) =
   var
     bucketSizes = newSeq[int](max + 1)
     bucketStart = newSeq[int](max + 1)
@@ -534,7 +536,7 @@ proc radixPass(a: seq[int], b: var seq[int], reference: seq[int], max: int, offs
     let digit = reference[i + offset]
     inc bucketSizes[digit]
   var total = 0
-  for i in 0 .. max:
+  for i in 0 .. max.int:
     bucketStart[i] = total
     total += bucketSizes[i]
   for c in a:
@@ -544,7 +546,7 @@ proc radixPass(a: seq[int], b: var seq[int], reference: seq[int], max: int, offs
     inc bucketStart[digit]
     b[position] = c
 
-proc dc3(xs: seq[int]): seq[int] =
+proc dc3(xs: seq[uint]): seq[uint] =
   var
     sampleIndices = sequtils.toSeq(samples(xs.len))
     scratchIndices = sampleIndices
@@ -558,10 +560,10 @@ proc dc3(xs: seq[int]): seq[int] =
   # `scratchIndices` now contains the lexicographic order of
   # triplets starting from indices in the sample set C = { x | x mod 3 != 0 }
   var
-    lastTriplet = [-1, -1, -1]
-    count = 0
-    R12 = newSeq[int](L)
-    SA12 = newSeq[int](L)
+    lastTriplet = [minusOne, minusOne, minusOne]
+    count = 0'u
+    R12 = newSeq[uint](L)
+    SA12 = newSeq[uint](L)
   for i, c in scratchIndices:
     let triplet = [xs[c], xs[c+1], xs[c+2]]
     if triplet != lastTriplet:
@@ -572,7 +574,7 @@ proc dc3(xs: seq[int]): seq[int] =
       quote = c div 3
       position = quote + (if rem == 1: 0 else: L2)
     R12[position] = count
-  if count < sampleIndices.len:
+  if count < sampleIndices.len.uint:
     # There was a repeated triple; need to sort again
     # the suffixes of R12 recursively
     for _ in 1 .. padding:
@@ -580,24 +582,24 @@ proc dc3(xs: seq[int]): seq[int] =
     SA12 = dc3(R12)
     # Reorder R12 accordingly
     for i, c in SA12:
-      R12[c] = i + 1
+      R12[c] = (i + 1).uint
   else:
     # Triples were unique; we can reconstruct the suffix
     # array from R12, which is sorted
     for i, c in R12:
-      SA12[c - 1] = i
+      SA12[c - 1] = i.uint
   var
-    R0 = newSeq[int](xs.len div 3)
-    SA0 = newSeq[int](xs.len div 3)
+    R0 = newSeq[uint](xs.len div 3)
+    SA0 = newSeq[uint](xs.len div 3)
     j = 0
   # if the last index in `xs` is = 1 mod 3, insert
   # that in head position
   if xs.len mod 3 == 0:
-    R0[j] = xs.len - 3
+    R0[j] = (xs.len - 3).uint
     inc j
   for c in SA12:
-    if c < L2: # only consider the first half of indices
-      R0[j] = 3 * c
+    if c < L2.uint: # only consider the first half of indices
+      R0[j] = 3'u * c
       inc j
   # R0 now contains the indices sorted by SA12[i + 1]
   # With another radix pass the will now be sorted by the pair
@@ -605,20 +607,21 @@ proc dc3(xs: seq[int]): seq[int] =
   radixPass(R0, SA0, xs, max = xs.max, offset = 0)
   # we can now merge the set C together with its complement
   var k, k0, k12 = 0
-  result = newSeq[int](SA0.len + SA12.len)
+  result = newSeq[uint](SA0.len + SA12.len)
 
-  template r12(i: int): int =
-    if i >= xs.len - padding: 0
+  template r12(i: uint): uint =
+    let j = i.int
+    if j >= xs.len - padding: 0'u
     else:
-      if i mod 3 == 1: R12[i div 3]
-      else: R12[i div 3 + L2]
+      if j mod 3 == 1: R12[j div 3]
+      else: R12[j div 3 + L2]
 
-  template compareB1(i, j: int): bool =
+  template compareB1(i, j: uint): bool =
     if xs[i] < xs[j]: true
     elif xs[j] < xs[i]: false
     else: r12(i + 1) < r12(j + 1)
 
-  template compareB2(i, j: int): bool =
+  template compareB2(i, j: uint): bool =
     if xs[i] < xs[j]: true
     elif xs[j] < xs[i]: false
     else: compareB1(i + 1, j + 1)
@@ -627,8 +630,8 @@ proc dc3(xs: seq[int]): seq[int] =
     let
       x0 = SA0[k0] # next index from B0
       i12 = SA12[k12] # this is an index in R12, but we have to map it back to an index in B12
-      b1case = i12 < L2 # whether the next index in B12 comes from B1
-      x12 = if b1case: 1 + 3 * i12 else: 2 + 3 * (i12 - L2) # next index from B12
+      b1case = i12 < L2.uint # whether the next index in B12 comes from B1
+      x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2.uint) # next index from B12
       nextInB0 = if b1case: compareB1(x0, x12) else: compareB2(x0, x12)
     if nextInB0:
       result[k] = x0
@@ -648,8 +651,8 @@ proc dc3(xs: seq[int]): seq[int] =
     while k < result.len:
       let
         i12 = SA12[k12]
-        b1case = i12 < L2
-        x12 = if b1case: 1 + 3 * i12 else: 2 + 3 * (i12 - L2) # next index from B12
+        b1case = i12 < L2.uint
+        x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2.uint) # next index from B12
       result[k] = x12
       inc k
       inc k12
@@ -660,11 +663,11 @@ proc uniq(content: string): seq[char] =
     if not result.contains(x):
       result.add(x)
 
-proc enumerate(s: AnyString): seq[int] =
+proc enumerate(s: AnyString): seq[uint] =
   let alphabet = uniq(s).sorted(system.cmp[char])
-  result = newSeq[int](s.len)
+  result = newSeq[uint](s.len)
   for i, c in s:
-    result[i] = alphabet.find(c) + 1
+    result[i] = (alphabet.find(c) + 1).uint
   for _ in 1 .. padding:
     result.add(0)
 

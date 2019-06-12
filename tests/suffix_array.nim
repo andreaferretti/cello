@@ -20,7 +20,7 @@ suite "Suffix array":
     let
       x = "this is a test."
       s = suffixArray(x)
-      t = @[7, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
+      t = @[7'u, 4, 9, 14, 8, 11, 1, 5, 2, 6, 3, 12, 13, 10, 0]
 
     for i in t.low .. t.high:
       check s[i] == t[i]
@@ -28,7 +28,7 @@ suite "Suffix array":
     let
       x = "ACTGTAT"
       s = suffixArray(x)
-      t = @[0, 5, 1, 3, 6, 4, 2]
+      t = @[0'u, 5, 1, 3, 6, 4, 2]
 
     for i in t.low .. t.high:
       check s[i] == t[i]

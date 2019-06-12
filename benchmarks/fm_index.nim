@@ -27,16 +27,16 @@ proc main() =
     indices = newSeq[int]()
     sw = stopwatch()
 
-  for i in 0 .. <  width:
-    s[i] = letters[random(4)]
+  for i in 0 ..<  width:
+    s[i] = letters[rand(3)]
 
-  for _ in 0 .. < ops:
-    indices.add(random(width - patternLen))
+  for _ in 0 ..< ops:
+    indices.add(rand(width - patternLen - 1))
 
   echo "Initialization done"
 
   sw.start()
-  let (fm, sa) = fmIndexWithSuffixArray(s)
+  let index = searchIndex(s)
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to prepare the FM index for a ", width, " long string."
@@ -45,8 +45,8 @@ proc main() =
   for i in indices:
     let
       pattern = s[i .. (i + patternLen - 1)]
-      positions = fm.search(pattern)
-    discard positions.toSeq.mapIt(sa[it])
+      positions = index.fmIndex.search(pattern)
+    discard positions.toSeq.mapIt(index.suffixArray[it])
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to find ", ops, " patterns."

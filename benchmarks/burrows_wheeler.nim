@@ -15,10 +15,10 @@ import stopwatch, random
 import cello
 
 proc randomString(width: int, letters: openarray[char]): string =
-  let L = len(letters)
+  let L = len(letters) - 1
   result = newString(width)
   for i in 0 ..< width:
-    result[i] = letters[random(L)]
+    result[i] = letters[rand(L)]
 
 proc main() =
   const width = 10_000_000

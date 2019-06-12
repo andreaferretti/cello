@@ -21,8 +21,8 @@ proc makeWaveletTree(): auto =
   let letters = ['A', 'C', 'G', 'T']
   randomize(12435)
 
-  for i in 0 .. <  width:
-    b[i] = letters[random(4)]
+  for i in 0 ..<  width:
+    b[i] = letters[rand(3)]
 
   return waveletTree(b)
 

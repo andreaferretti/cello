@@ -27,14 +27,14 @@ proc main() =
     indicesSelect = newSeq[(int, char)]()
     sw = stopwatch()
 
-  for i in 0 .. <  width:
-    s[i] = letters[random(4)]
+  for i in 0 ..<  width:
+    s[i] = letters[rand(3)]
 
-  for _ in 0 .. < ops:
-    indicesRank.add((random(width), letters[random(4)]))
+  for _ in 0 ..< ops:
+    indicesRank.add((rand(width - 1), letters[rand(3)]))
 
-  for _ in 0 .. < ops:
-    indicesSelect.add((random(width div 5), letters[random(4)]))
+  for _ in 0 ..< ops:
+    indicesSelect.add((rand((width div 5) - 1), letters[rand(3)]))
   echo "Initialization done"
 
   sw.start()

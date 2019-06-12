@@ -20,8 +20,8 @@ proc makeRRR(): auto =
   var b = bits(width)
   randomize(12435)
 
-  for i in 0 .. <  width:
-    if random(2) == 0:
+  for i in 0 ..<  width:
+    if rand(1) == 0:
       incl(b, i)
 
   return rrr(b)

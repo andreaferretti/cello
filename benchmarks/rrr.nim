@@ -26,13 +26,13 @@ proc main() =
     indicesSelect = newSeq[int]()
     sw = stopwatch()
 
-  for i in 0 .. <  width:
-    if random(2) == 0:
+  for i in 0 ..<  width:
+    if rand(1) == 0:
       incl(b, i)
 
-  for _ in 0 .. < ops:
-    indicesRank.add(random(width))
-    indicesSelect.add(random(width div 3))
+  for _ in 0 ..< ops:
+    indicesRank.add(rand(width - 1))
+    indicesSelect.add(rand((width div 3) - 1))
   echo "Initialization done"
 
   sw.start()

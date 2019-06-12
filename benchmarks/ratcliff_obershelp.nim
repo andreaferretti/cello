@@ -16,21 +16,21 @@ import cello
 
 proc main() =
   let
-    words = sequtils.toSeq(lines("/etc/dictionaries-common/words"))
+    words = sequtils.toSeq(lines("it.txt"))
     L = 10000 # words.len
   var sw = stopwatch()
 
   sw.start()
-  for i in 0 .. <  L:
-    for j in (i + 1) .. <  L:
+  for i in 0 ..<  L:
+    for j in (i + 1) ..<  L:
       discard ratcliffObershelp(words[i], words[j])
   sw.stop()
 
   echo "We have required ", sw.secs(), " seconds to compute all Ratcliff-Obershelp similarities among ", L, " strings."
 
   sw.start()
-  for i in 0 .. <  L:
-    for j in (i + 1) .. <  L:
+  for i in 0 ..<  L:
+    for j in (i + 1) ..<  L:
       discard levenshtein(words[i], words[j])
   sw.stop()
 

@@ -30,7 +30,7 @@ let
 echo positions
 ```
 Many intermediate data structures are constructed to provide such indices,
-though, and as they may be in independent interest, we describe them in the
+though, and as they may be of independent interest, we describe them in the
 following.
 
 Notice that a string here just stands for a (usually very long) sequence of
@@ -55,6 +55,11 @@ a priority.
 Notice that Cello is not Unicode-aware: think more of searching large genomic
 strings or symbolized time series, rather then using it for internationalized
 text, although I may consider Unicode operations in the future.
+
+## Versions
+
+Cello recent version (>= 0.2) requires Nim >= 0.20. For usage with Nim up to
+0.19.4, use Cello 0.1.6.
 
 ## Basic operations
 
@@ -133,13 +138,13 @@ echo x.select0(30) # 90
 ### Int arrays
 
 Int arrays are just integer sequences of fixed length. What distinguishes
-them by the various types `seq[int64]`, `seq[int32]`, `seq[int16]`, `seq[int8]`
+them by the various types `seq[uint64]`, `seq[uint32]`, `seq[uint16]`, `seq[uint8]`
 is that the integers can have any length, such as 23.
 
 They are backed by a bit array, and can be used to store many integer numbers
 of which an upper bound is known without wasting space. For instance, a sequence
 of positive numbers less that 512 can be backed by an int array where each
-number has size 9. Using a `seq[int16]` would almost double the space
+number has size 9. Using a `seq[uint16]` would almost double the space
 consumption.
 
 Most sequence operations are available, but they cannot go after the initial
@@ -351,7 +356,7 @@ echo positions.first # 2
 echo positions.last  # 3
 
 for j in positions.first .. positions.last:
-  let i = sa[j]
+  let i = sa[j.int]
   echo x.rotate(i)
 
 # issippimiss

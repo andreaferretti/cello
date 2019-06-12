@@ -798,9 +798,9 @@ proc search*(index: FMIndex, pattern: AnyString): Positions =
 
 proc toSeq*(p: Positions): seq[int] = sequtils.toSeq(p.first .. p.last)
 
-proc search*(index: SearchIndex, pattern: AnyString): seq[int] =
+proc search*(index: SearchIndex, pattern: AnyString): seq[uint] =
   let ps = index.fmIndex.search(pattern)
-  result = newSeq[int]()
+  result = newSeq[uint]()
   for i in ps.first .. ps.last:
     result.add(index.suffixArray[i])
 
@@ -1002,7 +1002,7 @@ proc searchApproximate*(index: SearchIndex, orig, pattern: AnyString, options: S
     for p in positions:
       # We look for an approximate match in a window around the exact match
       let
-        windowStart = max(p - begin, 0)
+        windowStart = max(p.int - begin, 0)
         windowEnd = windowStart + pattern.len - 1
         window = orig[windowStart .. windowEnd]
       # Finally, we check whether the window is similar enough to the query

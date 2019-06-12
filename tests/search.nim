@@ -23,7 +23,7 @@ suite "Search":
       index = searchIndex(x)
       positions = index.search(pattern)
 
-    check positions.sorted(system.cmp[int]) == @[1, 4]
+    check positions.sorted(system.cmp[uint]) == @[1'u, 4'u]
 
   test "approximate search with index":
     let

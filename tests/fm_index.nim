@@ -30,7 +30,7 @@ suite "FM index":
     for j in positions.first .. positions.last:
       let
         i = sa[j]
-        y = $(x.rotate(i))
+        y = $(x.rotate(i.int))
       check y.startsWith(pattern)
 
   test "backward search on a random string":
@@ -47,7 +47,7 @@ suite "FM index":
     for j in positions.first .. positions.last:
       let
         i = sa[j]
-        y = $(x.rotate(i))
+        y = $(x.rotate(i.int))
       check y.startsWith(pattern)
 
   test "backward search on a memory-mapped string":
@@ -66,4 +66,4 @@ suite "FM index":
 
     for p in realPositions:
       for i in 0 .. pattern.high:
-        check(x[p + i] == pattern[i])
+        check(x[p.int + i] == pattern[i])

@@ -716,7 +716,7 @@ proc burrowsWheeler*(s: AnyString, rotations: IntArray): string =
     if j == 0:
       result[i] = specialChar
     else:
-      result[i] = s[j - 1]
+      result[i] = s[(j - 1).int]
 
 proc burrowsWheeler*(s: AnyString, algorithm = SuffixArrayAlgorithm.Sort): string =
   burrowsWheeler(s, suffixArray(s, algorithm))

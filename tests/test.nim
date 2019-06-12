@@ -13,6 +13,5 @@
 # limitations under the License.
 import ./bits, ./setops, ./stringops, ./bitarrays, ./intarrays,
   ./blocks, ./rrr, ./wavelet_tree, ./rotated_string, ./suffix_array,
-  # ./burrows_wheeler, ./fm_index, ./boyer_moore, ./ratcliff_obershelp,
-  ./boyer_moore, ./ratcliff_obershelp,
+  ./burrows_wheeler, ./fm_index, ./boyer_moore, ./ratcliff_obershelp,
   ./jaro_winkler#, ./search

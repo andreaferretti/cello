@@ -95,7 +95,7 @@ proc rank*(t: uint, i: int): auto =
     return 0
   if i >= L:
     return countSetBits(t)
-  let mask = not(0'u) shr (L - i)
+  let mask = minusOne shr (L - i)
   return countSetBits(mask and t)
 
 proc rank*(s: BitArray, i: int): int =
@@ -223,7 +223,7 @@ proc `[]`*(ints: IntArray, i: int): uint {.inline.} =
     let
       word = ints.ba.data[startByte]
       shifted = word shr startOffset
-      mask = not(0'u) shr (L - ints.size)
+      mask = minusOne shr (L - ints.size)
     return shifted and mask
   else:
     let
@@ -231,7 +231,7 @@ proc `[]`*(ints: IntArray, i: int): uint {.inline.} =
       word1 = ints.ba.data[startByte]
       word2 = ints.ba.data[startByte + 1]
       shifted1 = word1 shr startOffset
-      mask = not(0'u) shr (L - endOffset)
+      mask = minusOne shr (L - endOffset)
       shifted2 = (word2 and mask) shl (L - startOffset)
     return shifted1 or shifted2
 
@@ -248,18 +248,18 @@ proc `[]=`*(ints: var IntArray, i: int, v: uint) {.inline.} =
     let
       word = ints.ba.data[startByte]
       shifted = v shl startOffset
-      mask = not ((not(0'u) shr (L - ints.size)) shl startOffset)
+      mask = not ((minusOne shr (L - ints.size)) shl startOffset)
       newWord = (word and mask) or shifted
     ints.ba.data[startByte] = newWord
   else:
     let
       endOffset = startOffset + ints.size - 1 - L
       word1 = ints.ba.data[startByte]
-      mask1 = not (not(0'u) shl startOffset)
+      mask1 = not (minusOne shl startOffset)
       shifted1 = v shl startOffset
       newWord1 = (word1 and mask1) or shifted1
       word2 = ints.ba.data[startByte + 1]
-      mask2 = not (not(0'u) shr (L - endOffset))
+      mask2 = not (minusOne shr (L - endOffset))
       shifted2 = v shr (L - startOffset)
       newWord2 = (word2 and mask2) or shifted2
     ints.ba.data[startByte] = newWord1
@@ -553,6 +553,7 @@ proc dc3(xs: seq[uint]): seq[uint] =
   let
     L = sampleIndices.len
     L2 = (L+1) div 2
+    L2u = L2.uint
     m = xs.max
   radixPass(sampleIndices, scratchIndices, xs, max = m, offset = 2)
   radixPass(scratchIndices, sampleIndices, xs, max = m, offset = 1)
@@ -598,7 +599,7 @@ proc dc3(xs: seq[uint]): seq[uint] =
     R0[j] = (xs.len - 3).uint
     inc j
   for c in SA12:
-    if c < L2.uint: # only consider the first half of indices
+    if c < L2u: # only consider the first half of indices
       R0[j] = 3'u * c
       inc j
   # R0 now contains the indices sorted by SA12[i + 1]
@@ -630,8 +631,8 @@ proc dc3(xs: seq[uint]): seq[uint] =
     let
       x0 = SA0[k0] # next index from B0
       i12 = SA12[k12] # this is an index in R12, but we have to map it back to an index in B12
-      b1case = i12 < L2.uint # whether the next index in B12 comes from B1
-      x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2.uint) # next index from B12
+      b1case = i12 < L2u # whether the next index in B12 comes from B1
+      x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2u) # next index from B12
       nextInB0 = if b1case: compareB1(x0, x12) else: compareB2(x0, x12)
     if nextInB0:
       result[k] = x0
@@ -651,8 +652,8 @@ proc dc3(xs: seq[uint]): seq[uint] =
     while k < result.len:
       let
         i12 = SA12[k12]
-        b1case = i12 < L2.uint
-        x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2.uint) # next index from B12
+        b1case = i12 < L2u
+        x12 = if b1case: 1'u + 3'u * i12 else: 2'u + 3'u * (i12 - L2u) # next index from B12
       result[k] = x12
       inc k
       inc k12

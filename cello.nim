@@ -41,18 +41,18 @@ proc select*(s: AnyString, c: char, i: int): int =
     inc result
 
 type BitArray* = ref object
-  data: seq[int]
+  data: seq[uint]
 
 proc bits*(k: int): BitArray =
   const L = sizeof(int) * 8
   let r = k div L + (if k mod L == 0: 0 else: 1)
-  result = BitArray(data: newSeq[int](r))
+  result = BitArray(data: newSeq[uint](r))
   # shallow(result.data)
 
 proc len*(bits: BitArray): int =
   bits.data.len * sizeof(int) * 8
 
-proc `[]`*(b: int, i: int): bool {.inline.} =
+proc `[]`*(b: uint, i: int): bool {.inline.} =
   ((b shr i) mod 2) != 0
 
 proc `[]`*(bits: BitArray, i: int): bool {.inline.} =
@@ -67,7 +67,7 @@ proc `[]=`*(bits: var BitArray, i: int, v: bool) {.inline.} =
   let
     j = i mod L
     k = i div L
-    p = 1 shl j
+    p = 1'u shl j
   if v:
     bits.data[k] = bits.data[k] or p
   else:
@@ -87,14 +87,14 @@ proc bits*(xs: varargs[Slice[int]]): BitArray =
     for y in x:
       result.incl(y)
 
-proc rank*(t, i: int): auto =
+proc rank*(t: uint, i: int): auto =
   const L = sizeof(int) * 8
   if i == 0:
     return 0
   if i >= L:
     return countSetBits(t)
-  let mask = -1 shr (L - i)
-  countSetBits(mask and t)
+  let mask = not(0'u) shr (L - i)
+  return countSetBits(mask and t)
 
 proc rank*(s: BitArray, i: int): int =
   const L = sizeof(int) * 8
@@ -105,7 +105,7 @@ proc rank*(s: BitArray, i: int): int =
     result += countSetBits(s.data[r])
   result += rank(s.data[k], j)
 
-proc select*(t, i: int): int =
+proc select*(t: uint, i: int): int =
   var
     t1 = t
     i1 = i
@@ -162,8 +162,8 @@ proc naiveSelect0*(b: BitArray, i: int): int =
       inc count
     inc result
 
-proc bin*(t: int): string =
-  const L = sizeof(int) * 8
+proc bin*(t: uint): string =
+  const L = sizeof(uint) * 8
   result = ""
   for i in 1 .. L:
     if t[L - i]:
@@ -194,7 +194,7 @@ iterator blocks*(popcount, size: int): auto {.inline.} =
     mask = (1 shl size) - 1
   var v = initial
   while v >= initial:
-    yield v
+    yield v.uint
     v = nextPerm(v) and mask
 
 type IntArray* = object
@@ -207,9 +207,9 @@ proc capacity*(ints: IntArray): auto = ints.ba.len div ints.size
 proc ints*(k, size: int): IntArray =
   return IntArray(ba: bits(k * size), size: size, length: 0)
 
-proc maxBits(n: int): int = log2(n.float).int + 1
+proc maxBits(n: uint): int = log2(n.float).int + 1
 
-proc `[]`*(ints: IntArray, i: int): int {.inline.} =
+proc `[]`*(ints: IntArray, i: int): uint {.inline.} =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
   let
@@ -221,7 +221,7 @@ proc `[]`*(ints: IntArray, i: int): int {.inline.} =
     let
       word = ints.ba.data[startByte]
       shifted = word shr startOffset
-      mask = -1 shr (L - ints.size)
+      mask = not(0'u) shr (L - ints.size)
     return shifted and mask
   else:
     let
@@ -229,11 +229,11 @@ proc `[]`*(ints: IntArray, i: int): int {.inline.} =
       word1 = ints.ba.data[startByte]
       word2 = ints.ba.data[startByte + 1]
       shifted1 = word1 shr startOffset
-      mask = -1 shr (L - endOffset)
+      mask = not(0'u) shr (L - endOffset)
       shifted2 = (word2 and mask) shl (L - startOffset)
     return shifted1 or shifted2
 
-proc `[]=`*(ints: var IntArray, i, v: int) {.inline.} =
+proc `[]=`*(ints: var IntArray, i: int, v: uint) {.inline.} =
   const L = sizeof(int) * 8
   assert((i + 1) * ints.size <= ints.ba.len)
   #assert(v < 2 ^ ints.size)
@@ -246,36 +246,36 @@ proc `[]=`*(ints: var IntArray, i, v: int) {.inline.} =
     let
       word = ints.ba.data[startByte]
       shifted = v shl startOffset
-      mask = not ((-1 shr (L - ints.size)) shl startOffset)
+      mask = not ((not(0'u) shr (L - ints.size)) shl startOffset)
       newWord = (word and mask) or shifted
     ints.ba.data[startByte] = newWord
   else:
     let
       endOffset = startOffset + ints.size - 1 - L
       word1 = ints.ba.data[startByte]
-      mask1 = not (-1 shl startOffset)
+      mask1 = not (not(0'u) shl startOffset)
       shifted1 = v shl startOffset
       newWord1 = (word1 and mask1) or shifted1
       word2 = ints.ba.data[startByte + 1]
-      mask2 = not (-1 shr (L - endOffset))
+      mask2 = not (not(0'u) shr (L - endOffset))
       shifted2 = v shr (L - startOffset)
       newWord2 = (word2 and mask2) or shifted2
     ints.ba.data[startByte] = newWord1
     ints.ba.data[startByte + 1] = newWord2
   ints.length = max(ints.length, i + 1)
 
-proc ints*(xs: seq[int]): IntArray =
+proc ints*(xs: seq[uint]): IntArray =
   result = ints(xs.len, maxBits(xs.max))
   for i, x in xs:
     result[i] = x
 
-proc add*(ints: var IntArray, v: int) =
+proc add*(ints: var IntArray, v: uint) =
   ints[ints.length] = v
 
 proc len*(ints: IntArray): int = ints.length
 
-proc toIntSeq*(ints: IntArray): seq[int] =
-  result = newSeq[int](ints.length)
+proc toIntSeq*(ints: IntArray): seq[uint] =
+  result = newSeq[uint](ints.length)
   for i in 0 ..< ints.length:
     result[i] = ints[i]
 
@@ -296,14 +296,14 @@ const
 proc rrr*(ba: BitArray): RRR =
   let L = ba.len
   var
-    index1 = ints(L div step1 + 1, maxBits(L))
+    index1 = ints(L div step1 + 1, maxBits(L.uint))
     index2 = ints(L div step2 + 1, maxBits(step1))
-    sum1 = 0
-    sum2 = 0
+    sum1 = 0'u
+    sum2 = 0'u
   index1.add(0)
   index2.add(0)
   for i, cell in ba.data:
-    sum2 += countSetBits(cell)
+    sum2 += countSetBits(cell).uint
     if (i + 1) mod stepWidth == 0:
       sum1 += sum2
       index1.add(sum1)
@@ -315,9 +315,9 @@ proc stats*(r: RRR): RRRStats =
   RRRStats(data: r.ba.len, index1: r.index1.ba.len, index2: r.index2.ba.len)
 
 proc rank*(r: RRR, i: int): int =
-  return r.index1[i div step1] + r.index2[i div step2] + rank(r.ba.data[i div step2], i mod step2)
+  return r.index1[i div step1].int + r.index2[i div step2].int + rank(r.ba.data[i div step2], i mod step2)
 
-proc binarySearch(s: IntArray, value, min, max: int): (int, int) =
+proc binarySearch(s: IntArray, value: uint, min, max: int): (int, uint) =
   var
     aMin = min
     aMax = max
@@ -334,44 +334,44 @@ proc binarySearch(s: IntArray, value, min, max: int): (int, int) =
       aMax = middle
   return (aMin, s[aMin])
 
-proc binarySearch0(s: IntArray, value, min, max, width: int): (int, int) =
+proc binarySearch0(s: IntArray, value: uint, min, max, width: int): (int, int) =
   var
     aMin = min
     aMax = max
   while aMin < aMax:
     let
       middle = (aMin + aMax) div 2
-      v = (middle - min) * width - s[middle]
-    if v < value:
+      v = (middle - min) * width - s[middle].int
+    if v < value.int:
       if aMin == middle:
         aMax = middle
       else:
         aMin = middle
     else:
       aMax = middle
-  return (aMin, (aMin - min) * width - s[aMin])
+  return (aMin, (aMin - min) * width - s[aMin].int)
 
 proc select*(r: RRR, i: int): int =
   let
     (i1, s1) = binarySearch(r.index1,
-      value = i,
+      value = i.uint,
       min = 0,
       max = r.index1.length)
     (i2, s2) = binarySearch(r.index2,
-      value = i - s1,
+      value = (i - s1.int).uint,
       min = stepWidth * i1,
       max = min(stepWidth * (i1 + 1 ), r.index2.length))
-  return step2 * i2 + select(r.ba.data[i2], i - s1 - s2)
+  return step2 * i2 + select(r.ba.data[i2], i - s1.int - s2.int)
 
 proc select0*(r: RRR, i: int): int =
   let
     (i1, s1) = binarySearch0(r.index1,
-      value = i,
+      value = i.uint,
       min = 0,
       max = r.index1.length,
       width = step1)
     (i2, s2) = binarySearch0(r.index2,
-      value = i - s1,
+      value = (i - s1.int).uint,
       min = stepWidth * i1,
       max = min(stepWidth * (i1 + 1), r.index2.length),
       width = step2)
@@ -689,9 +689,9 @@ proc sortSuffixArray(s: AnyString): IntArray =
     return 0
   var r = toSeq(0 ..< s.len)
   r.sort(compareIndices)
-  result = ints(s.len, maxBits(s.len))
+  result = ints(s.len, maxBits(s.len.uint))
   for i in 0 ..< s.len:
-    result[i] = r[i]
+    result[i] = r[i].uint
 
 type SuffixArrayAlgorithm* {.pure.} = enum
   Sort, DC3

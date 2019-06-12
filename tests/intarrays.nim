@@ -16,20 +16,20 @@ import cello, unittest, random, sugar
 suite "int arrays":
   test "int array access":
     var
-      x = newSeq[int](100)
+      x = newSeq[uint](100)
       y = ints(100, 9)
     for i in 0 .. 99:
-      let r = rand(511)
+      let r = rand(511).uint
       x[i] = r
       y[i] = r
     for i in 0 .. 99:
       check(y[i] == x[i])
   test "adding to int arrays":
     var
-      x = newSeq[int](100)
+      x = newSeq[uint](100)
       y = ints(100, 9)
     for i in 0 .. 99:
-      x[i] = rand(511)
+      x[i] = rand(511).uint
     for i in 0 .. 45:
       y.add(x[i])
     for i in 0 .. 45:
@@ -41,8 +41,8 @@ suite "int arrays":
     # 960 div 9 == 106
     check(y.capacity == 106)
   test "transforming to sequence and back":
-    var x = newSeq[int](100)
+    var x = newSeq[uint](100)
     for i in 0 .. 99:
-      x[i] = rand(511)
+      x[i] = rand(511).uint
     let y = ints(x)
     check x == y.toIntSeq

@@ -491,7 +491,10 @@ proc rotate*(s: string, i: int): RotatedString =
 
 proc rotate*(s: var string, i: int): RotatedString =
   result = RotatedString(shift: i)
-  shallowCopy(result.underlying, s)
+  when defined(gcArc) or defined(gcOrc):
+    result.underlying = s
+  else:
+    shallowCopy(result.underlying, s)
 
 proc `[]`*(r: RotatedString, i: int): char {.inline.} =
   let L = r.underlying.len

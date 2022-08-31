@@ -42,7 +42,8 @@ suite "rotated strings":
       y = x.rotate(5)
 
     y[0] = 'f'
-    check x[5] == 'f'
+    when declared(shallowCopy):
+      check x[5] == 'f'
   test "transforming to string":
     var x = "Hello, world".rotate(7)
 
